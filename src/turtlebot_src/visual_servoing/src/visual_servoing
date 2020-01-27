@@ -18,12 +18,12 @@ class Visual_Servoing():
 
         self.kinect = "Kinect camera"
         self.depth_kinect = "Depth Kinect camera"
-        self.robotis = "Robotis OP3 Head Kinect camera"
+        self.robotis = "Robotis OP3 Head camera"
 
 
         self.cmd_vel_pub = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=5)
-        rospy.Subscriber('/camera/depth/image_raw', Image, self.callback, self.kinect)
-        rospy.Subscriber('/camera/rgb/image_raw', Image, self.callback, self.depth_kinect)
+        rospy.Subscriber('/camera/rgb/image_raw', Image, self.callback, self.kinect)
+        # rospy.Subscriber('/camera/depth/image_raw', Image, self.callback, self.depth_kinect)
         rospy.Subscriber('/robotis_op3/camera/image_raw', Image, self.callback, self.robotis)
 
         rospy.loginfo("Marker messages detected. Starting visual servoing.")
@@ -43,7 +43,7 @@ class Visual_Servoing():
     def callback(self, data, msg):
         rospy.loginfo("I recieved an Image from " + msg)
         if msg == self.kinect:
-            rospy.loginfo(np.asarray(data.data).shape)
+            rospy.loginfo((data.data))
 
 
 if __name__=="__main__":
