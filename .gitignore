@@ -5,3 +5,4 @@
 .project
 .pydevproject
 *.rosinstall
+CHANGELOG.rst
