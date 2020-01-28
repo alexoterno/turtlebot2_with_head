@@ -4,4 +4,4 @@
 .cproject
 .project
 .pydevproject
-.rosinstall
+*.rosinstall
