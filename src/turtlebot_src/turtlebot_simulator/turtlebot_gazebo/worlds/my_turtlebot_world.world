@@ -474,9 +474,9 @@
         </link>
       </model>
       <model name='Marker0'>
-        <pose>5 5 0.086631 0 0 -0.639737</pose>
+        <pose>-3 3 0.086631 0 0 -0.639737</pose>
         <link name='link'>
-          <pose>1.07513 -0.689512 0.086631 0 0 -0.639737</pose>
+          <pose>-3 3 0.086631 0 0 -0.639737</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -674,5 +674,6 @@
         <gravity>1</gravity>
       </link>
       <pose>1 0 0 0 -0 0</pose>
+    </model>
   </world>
 </sdf>
