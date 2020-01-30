@@ -137,9 +137,9 @@ void VisualServoing::init_vs(){
   s_xd.buildFrom(0, 0, Zd);
 
   // Add the feature
-  task.addFeature(s_x, s_xd, vpFeaturePoint::selectX()) ;
-  s_Z.buildFrom(s_x.get_x(), s_x.get_y(), Z , 0); // log(Z/Z*) = 0 that's why the last parameter is 0
-  s_Zd.buildFrom(s_x.get_x(), s_x.get_y(), Zd , 0); // log(Z/Z*) = 0 that's why the last parameter is 0
+  task.addFeature(s_x, s_xd, vpFeaturePoint::selectX()) ; //in the image plan
+  s_Z.buildFrom(s_x.get_x(), s_x.get_y(), Z , 0); // log(Z/Z*) = 0 that's why the last parameter is 0 in the camera plan
+  s_Zd.buildFrom(s_x.get_x(), s_x.get_y(), Zd , 0); // log(Z/Z*) = 0 that's why the last parameter is 0 in the camera plan
 
   // Add the feature
   task.addFeature(s_Z, s_Zd);
@@ -190,11 +190,11 @@ void VisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPtr& msg)
     cMo = visp_bridge::toVispHomogeneousMatrix(msg->pose);
     // std::cout << "cMo" << std::endl;
     // std::cout << cMo << std::endl;
-    origin.setWorldCoordinates(0,0,0);
+    origin.setWorldCoordinates(0,0,0); // the coordinates of the point in the object frame
+    //Compute the feature parameters in the camera frame (vpTracker::cP) and than compute the projection of these parameters in the image plane (vpTracker::p)
     origin.project(cMo);
-    Z = origin.get_Z();
-    std::cout << "Z" << std::endl;
-    std::cout << Z << std::endl;
+    Z = origin.get_Z(); // Get the point Z coordinate in the camera frame
+    std::cout << "Z : " << Z << std::endl;
     if ((Z <= depth * high_ratio) && (Z >= depth * low_ratio)){//IF1
         while(1){ //Infinite Loop -- Here we have finished our task
 
@@ -221,7 +221,8 @@ void VisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPtr& msg)
       return;
     }
   // Update the current x feature
-  s_x.set_xyZ(origin.p[0], origin.p[1], Z);
+  s_x.set_xyZ(origin.p[0], origin.p[1], Z); //Feature coordinates expressed in the image plane p. They correspond to 2D normalized coordinates expressed in meters
+  // $ x $ and $ y $ represent the coordinates of the point in the image plan and are the parameters of the visual feature $ s $. $ Z $ is the 3D coordinate in the camera frame representing the depth
   // Update log(Z/Z*) feature. Since the depth Z change, we need to update the intection matrix
   s_Z.buildFrom(s_x.get_x(), s_x.get_y(), Z, log(Z/Zd));
   cVe = robot.get_cVe();
@@ -232,7 +233,8 @@ void VisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPtr& msg)
   task.set_eJe(eJe);
   // Compute the control law. Velocities are computed in the mobile robot reference frame
   v = task.computeControlLaw() ;
-
+  // std::cout << "velocity" << std::endl;
+  // std::cout << v << std::endl;
   if (0) { //valid_pose_prev == false) {
       // Start a new visual servo
       ROS_INFO("Reinit visual servo");
