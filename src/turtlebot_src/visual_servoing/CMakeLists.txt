@@ -10,7 +10,10 @@ project(visual_servoing)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
+  std_msgs
   geometry_msgs
+  visp_bridge
+  rosconsole
 )
 
 ## System dependencies are found with CMake's conventions
@@ -105,7 +108,13 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES visual_servoing
-#  CATKIN_DEPENDS roscpp std_msgs
+  CATKIN_DEPENDS
+  roscpp
+  sensor_msgs
+  std_msgs
+  geometry_msgs
+  visp_bridge
+  rosconsole
 #  DEPENDS system_lib
 )
 
@@ -186,11 +195,12 @@ target_link_libraries(${PROJECT_NAME}_node
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
+install(FILES
 #   # myfile1
 #   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+  launch/visual_servoing.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##

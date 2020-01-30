@@ -1,6 +1,17 @@
 <launch>
 
   <node pkg="visual_servoing" type="visual_servoing_node" name="visual_servoing" output="screen">
-    <!--param name="cmd_vel" value="cmd_vel_mux/input/navi"/-->
+    <param name="cmd_vel" value="cmd_vel_mux/input/navi"/>
+    <remap from="/camera_info" to="/camera/rgb/camera_info"/>
+    <!-- <remap from="/camera_info" to="/camera/depth/camera_info"/>  -->
+    <!-- <remap from="/camera_info" to="/robotis_op3/camera/camera_info"/>     -->
   </node>
+  <node pkg="visp_auto_tracker" type="visp_auto_tracker" name="visp_auto_tracker">
+   <param name="model_path" type="string" value="$(find visp_auto_tracker)/models" />
+   <param name="model_name" type="string" value="pattern" />
+   <param name="debug_display" value="True" />
+
+   <remap from="/visp_auto_tracker/camera_info" to="/camera/rgb/camera_info"/>
+   <remap from="/visp_auto_tracker/image_raw" to="/camera/rgb/image_raw"/>
+ </node>
 </launch>
