@@ -106,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES visual_servoing
   CATKIN_DEPENDS
   roscpp
@@ -125,7 +125,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -142,7 +142,11 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/visual_servoing_node.cpp)
+add_executable(
+  ${PROJECT_NAME}_node src/visual_servoing_node.cpp
+  src/non_holo_visual_servoing_node.cpp
+  src/visual_servoing_main.cpp
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -188,11 +192,11 @@ target_link_libraries(${PROJECT_NAME}_node
 # )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+  PATTERN ".svn" EXCLUDE
+)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES

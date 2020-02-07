@@ -5,19 +5,19 @@
 //------------------------------------
 // constructor:
 //------------------------------------
-VisualServoing::VisualServoing(){
+NonHoloVisualServoing::NonHoloVisualServoing(){
   ROS_INFO("Initializing values");
   str_kinect = "Kinect camera";
   str_depth_kinect = "Depth Kinect camera";
   str_robotis = "Robotis OP3 Head  camera";
   cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/navi", 10);
 
-  // image_robotis_sub_ = nh_.subscribe<sensor_msgs::Image>("/robotis_op3/camera/image_raw", 10, boost::bind (&VisualServoing::cameraCallback, this,  _1, &str_robotis));
-  // image_kinect_sub_ = nh_.subscribe<sensor_msgs::Image>("/camera/rgb/image_raw", 10, boost::bind (&VisualServoing::cameraCallback, this,  _1, &str_kinect));
-  // image_robotis_sub_ = nh_.subscribe<sensor_msgs::Image>("/camera/depth/image_raw", 10, boost::bind (&VisualServoing::cameraCallback, this,  _1, &str_depth_kinect));
-  PoseTarget_tracker_sub_   = nh_.subscribe("/visp_auto_tracker/object_position", 10, &VisualServoing::poseCallback, this);
-  CamInfoParam_sub_ = nh_.subscribe("/camera_info", 10, &VisualServoing::CameraInfoCallback, this);
-  Status_sub_ = nh_.subscribe("/visp_auto_tracker/status", 10, &VisualServoing::statusCallback, this);
+  // image_robotis_sub_ = nh_.subscribe<sensor_msgs::Image>("/robotis_op3/camera/image_raw", 10, boost::bind (&NonHoloVisualServoing::cameraCallback, this,  _1, &str_robotis));
+  // image_kinect_sub_ = nh_.subscribe<sensor_msgs::Image>("/camera/rgb/image_raw", 10, boost::bind (&NonHoloVisualServoing::cameraCallback, this,  _1, &str_kinect));
+  // image_robotis_sub_ = nh_.subscribe<sensor_msgs::Image>("/camera/depth/image_raw", 10, boost::bind (&NonHoloVisualServoing::cameraCallback, this,  _1, &str_depth_kinect));
+  PoseTarget_tracker_sub_   = nh_.subscribe("/visp_auto_tracker/object_position", 10, &NonHoloVisualServoing::poseCallback, this);
+  CamInfoParam_sub_ = nh_.subscribe("/camera_info", 10, &NonHoloVisualServoing::CameraInfoCallback, this);
+  Status_sub_ = nh_.subscribe("/visp_auto_tracker/status", 10, &NonHoloVisualServoing::statusCallback, this);
   // disp.init(im, 0, 0, "a"); // display initialization
   // ROS_INFO("Display device initialized");
 }
@@ -25,7 +25,7 @@ VisualServoing::VisualServoing(){
 //------------------------------------
 // Initializing visual variables function
 //------------------------------------
-void VisualServoing::init_vs(){
+void NonHoloVisualServoing::init_vs(){
   camera_info = false;
   valid_pose = false;
   valid_pose_prev = false;
@@ -76,7 +76,7 @@ void VisualServoing::init_vs(){
 //------------------------------------
 // callback to get current features from sensor image stream
 //------------------------------------
-// void VisualServoing::cameraCallback(const sensor_msgs::ImageConstPtr& msg, const std::string *camera_type){
+// void NonHoloVisualServoing::cameraCallback(const sensor_msgs::ImageConstPtr& msg, const std::string *camera_type){
 //   current_rgb_msg = *msg; // convert sensor_msgs::ImageConstPtr to sensor_msgs::Image
 //   ROS_INFO_STREAM("I recieved an Image from " << *camera_type);
 //   ROS_INFO_STREAM("Width : " << current_rgb_msg.width << "\t Height : " << current_rgb_msg.height);
@@ -87,7 +87,7 @@ void VisualServoing::init_vs(){
 //------------------------------------
 // callback to get the camera parameters
 //------------------------------------
-void VisualServoing::CameraInfoCallback(const sensor_msgs::CameraInfo& msg){
+void NonHoloVisualServoing::CameraInfoCallback(const sensor_msgs::CameraInfo& msg){
   ROS_INFO("Received Camera INFO");
   cam = visp_bridge::toVispCameraParameters(msg);
   cam.printParameters();
@@ -101,7 +101,7 @@ void VisualServoing::CameraInfoCallback(const sensor_msgs::CameraInfo& msg){
 //------------------------------------
 // callback to get current targe pose from visp_auto_tracker
 //------------------------------------
-void VisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPtr& msg){
+void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPtr& msg){
   std::cout << camera_info << std::endl;
   if (!camera_info ){
     ROS_INFO("Waiting for the camera parameters");
@@ -201,7 +201,7 @@ void VisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPtr& msg)
 //------------------------------------
 // callback to get current tracker status from visp_auto_tracker
 //------------------------------------
-void VisualServoing::statusCallback(const std_msgs::Int8ConstPtr& msg){
+void NonHoloVisualServoing::statusCallback(const std_msgs::Int8ConstPtr& msg){
   // ROS_INFO("/visp_auto_tracker/status : %d", msg->data); // see http://wiki.ros.org/visp_auto_tracker#Tracker_states
   if (msg->data == 3)
     valid_pose = true;
