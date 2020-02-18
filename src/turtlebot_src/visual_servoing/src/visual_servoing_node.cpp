@@ -6,6 +6,7 @@
 // constructor:
 //------------------------------------
 VisualServoing::VisualServoing(){
+  ROS_INFO("Traditional Visual Servoing Algorithm");
   ROS_INFO("Initializing values");
   str_kinect = "Kinect camera";
   str_depth_kinect = "Depth Kinect camera";

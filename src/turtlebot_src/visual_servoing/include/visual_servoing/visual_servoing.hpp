@@ -5,7 +5,13 @@
 #include "sensor_msgs/CameraInfo.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseStamped.h"
+#include "nav_msgs/Odometry.h"
+#include "control_msgs/JointControllerState.h"
+#include "std_msgs/Float64.h"
 #include "string.h"
+#include "tf/transform_datatypes.h"
+#include "math.h"
+#include <eigen3/Eigen/Dense>
 
 #include "visp/vpImageIo.h"
 #include "visp_bridge/image.h"
@@ -84,13 +90,18 @@ class VisualServoing{
 class NonHoloVisualServoing{
   private:
     ros::NodeHandle nh_; // node handle
-    ros::Publisher cmd_vel_pub_; // publisher of velocity commands
+    ros::Publisher mobile_base_pub_; // publisher of mobile base velocities
+    ros::Publisher head_pan_pub_ ; // publisher of head pan velocity
+    ros::Publisher head_tilt_pub_ ; // publisher of head tilt velocity
     ros::Subscriber image_robotis_sub_; // subscriber to head robotis camera images
     ros::Subscriber image_kinect_sub_; // subscriber to kinect camera images
     ros::Subscriber image_kinect_depth_sub_; // subscriber to depth kinect camera images
     ros::Subscriber PoseTarget_tracker_sub_;  // pose_stamped
     ros::Subscriber CamInfoParam_sub_; // Camera parameters
     ros::Subscriber Status_sub_;  // tracker status
+    ros::Subscriber Mobile_base_pose_sub_;  // Mobile Base Pose
+    ros::Subscriber Head_pan_pose_sub_;  // Head pan pose
+    ros::Subscriber Head_tilt_pose_sub_;  // Head tilt pose
 
     std::string str_kinect;
     std::string str_depth_kinect;
@@ -110,8 +121,15 @@ class NonHoloVisualServoing{
     double thresh;
     double high_ratio;
     double low_ratio;
+    // double J_Robot[3][3]={0};
+    // double J_Robot_invert[3][3]={0};
+    Eigen::MatrixXd J_Robot_invert;
+    Eigen::MatrixXd camera_velocities;
+    Eigen::MatrixXd robot_velocities;
     vpHomogeneousMatrix cMo;
     geometry_msgs::Twist out_cmd_vel;
+    std_msgs::Float64 out_pan_vel;
+    std_msgs::Float64 out_tilt_vel;
     vpPoint origin;
     vpFeaturePoint s_x, s_xd;
     vpFeatureDepth s_Z, s_Zd;
@@ -125,6 +143,13 @@ class NonHoloVisualServoing{
     vpPioneer robot; //vpRobotPioneer
     double max_linear_vel;
     double max_angular_vel;
+    double mobile_base_pose_x;
+    double mobile_base_pose_y;
+    double mobile_base_pose_s;
+    double head_pan_angle;
+    double head_tilt_angle;
+    double roll, pitch, yaw;
+    double x_pan_robot;
 
   public:
     void init_vs();
@@ -132,6 +157,9 @@ class NonHoloVisualServoing{
     void poseCallback(const geometry_msgs::PoseStampedConstPtr& msg); // callback for current pose
     void CameraInfoCallback(const sensor_msgs::CameraInfo& msg); // callback to get camarea parameters
     void statusCallback(const std_msgs::Int8ConstPtr& msg); // callback to get tracker status
+    void mobileBasePoseCallback(const nav_msgs::OdometryConstPtr& msg); // callback to get the mobile base pose
+    void headPanPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
+    void headTiltPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
     NonHoloVisualServoing(); // constructor
 
 };

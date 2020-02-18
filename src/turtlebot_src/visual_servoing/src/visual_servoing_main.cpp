@@ -1,5 +1,5 @@
 #include "visual_servoing/visual_servoing.hpp"
-
+#include "ros/ros.h"
 //------------------------------------
 //Main function:
 //------------------------------------

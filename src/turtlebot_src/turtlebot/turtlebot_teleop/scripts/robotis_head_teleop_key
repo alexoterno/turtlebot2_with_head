@@ -40,11 +40,11 @@ Control Your Robotis Head!
 7 8 9
 4 5 6
 ---------------------------
-7 : head pan position + 0.05
-8 : head pan position - 0.05
+7 : head pan position + 0.02
+8 : head pan position - 0.02
 9 : reset pan position
-4 : tilt pan position + 0.05
-5 : tilt pan position - 0.05
+4 : tilt pan position + 0.02
+5 : tilt pan position - 0.02
 6 : reset tilt position
 
 
@@ -132,19 +132,19 @@ if __name__=="__main__":
         while(1):
             key = getKey()
             if key == '7' and pan_target <= pan_limit:
-                pan_target += 0.05
+                pan_target += 0.02
                 pan.data = pan_target
                 pub_pan.publish(pan)
             elif key == '4' and tilt_target <= tilt_limit :
-                tilt_target += 0.05
+                tilt_target += 0.02
                 tilt.data = tilt_target
                 pub_tilt.publish(tilt)
             elif key == '8' and pan_target >= -pan_limit:
-                pan_target -= 0.05
+                pan_target -= 0.02
                 pan.data = pan_target
                 pub_pan.publish(pan)
             elif key == '5' and tilt_target >= -tilt_limit:
-                tilt_target -= 0.05
+                tilt_target -= 0.02
                 tilt.data = tilt_target
                 pub_tilt.publish(tilt)
             elif key == '9':

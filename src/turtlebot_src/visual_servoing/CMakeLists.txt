@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   geometry_msgs
+  nav_msgs
+  control_msgs
   visp_bridge
   rosconsole
 )
@@ -107,12 +109,14 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES visual_servoing
+  LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS
   roscpp
   sensor_msgs
   std_msgs
   geometry_msgs
+  nav_msgs
+  control_msgs
   visp_bridge
   rosconsole
 #  DEPENDS system_lib
@@ -130,9 +134,10 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/visual_servoing.cpp
-# )
+add_library(
+  ${PROJECT_NAME} src/visual_servoing_node.cpp
+  src/non_holo_visual_servoing_node.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -143,9 +148,9 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(
-  ${PROJECT_NAME}_node src/visual_servoing_node.cpp
+  ${PROJECT_NAME}_node src/visual_servoing_main.cpp
+  src/visual_servoing_node.cpp
   src/non_holo_visual_servoing_node.cpp
-  src/visual_servoing_main.cpp
 )
 
 ## Rename C++ executable without prefix
