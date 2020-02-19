@@ -29,7 +29,7 @@
 #include "visp/vpDot.h"
 #include "visp/vpDot2.h"
 
-class VisualServoing{
+class HoloVisualServoing{
   private:
     ros::NodeHandle nh_; // node handle
     ros::Publisher cmd_vel_pub_; // publisher of velocity commands
@@ -80,7 +80,8 @@ class VisualServoing{
     void poseCallback(const geometry_msgs::PoseStampedConstPtr& msg); // callback for current pose
     void CameraInfoCallback(const sensor_msgs::CameraInfo& msg); // callback to get camarea parameters
     void statusCallback(const std_msgs::Int8ConstPtr& msg); // callback to get tracker status
-    VisualServoing(); // constructor
+    HoloVisualServoing(); // constructor
+    ~HoloVisualServoing(); // deconstructor
 
 };
 
@@ -161,5 +162,6 @@ class NonHoloVisualServoing{
     void headPanPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
     void headTiltPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
     NonHoloVisualServoing(); // constructor
+    ~NonHoloVisualServoing(); // deconstructor
 
 };

@@ -29,6 +29,12 @@ NonHoloVisualServoing::NonHoloVisualServoing(){
 }
 
 //------------------------------------
+// Deconstructor:
+//------------------------------------
+NonHoloVisualServoing::~NonHoloVisualServoing(){
+}
+
+//------------------------------------
 // Initializing visual variables function
 //------------------------------------
 void NonHoloVisualServoing::init_vs(){
@@ -108,7 +114,7 @@ void NonHoloVisualServoing::mobileBasePoseCallback(const nav_msgs::OdometryConst
   tf::Quaternion q(msg->pose.pose.orientation.x,msg->pose.pose.orientation.y , msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
   tf::Matrix3x3 m(q);
   m.getRPY(roll, pitch, yaw);
-  // ROS_INFO("Yaw : [%f]", yaw);
+  ROS_INFO("Yaw : [%f]", yaw);
 }
 
 //------------------------------------
@@ -116,7 +122,7 @@ void NonHoloVisualServoing::mobileBasePoseCallback(const nav_msgs::OdometryConst
 //------------------------------------
 void NonHoloVisualServoing::headPanPoseCallback(const control_msgs::JointControllerStateConstPtr& msg){
   head_pan_angle = msg ->process_value;
-  // ROS_INFO("pan ange: [%f]", head_pan_angle);
+  ROS_INFO("pan ange: [%f]", head_pan_angle);
 }
 
 //------------------------------------
@@ -124,7 +130,7 @@ void NonHoloVisualServoing::headPanPoseCallback(const control_msgs::JointControl
 //------------------------------------
 void NonHoloVisualServoing::headTiltPoseCallback(const control_msgs::JointControllerStateConstPtr& msg){
   head_tilt_angle = msg ->process_value;
-  // ROS_INFO("tilt angle: [%f]", head_tilt_angle);
+  ROS_INFO("tilt angle: [%f]", head_tilt_angle);
 }
 
 //------------------------------------

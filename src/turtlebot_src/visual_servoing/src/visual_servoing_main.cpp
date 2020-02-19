@@ -8,6 +8,6 @@ int main(int argc, char **argv)
   ROS_INFO("Starting IBVS");
   ros::init(argc, argv, "visual_servoing_node");
   NonHoloVisualServoing n_h_vsObject;
-  // VisualServoing vsObject;
+  // HoloVisualServoing vsObject;
  ros::spin();
 }

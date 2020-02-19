@@ -135,7 +135,7 @@ include_directories(
 
 ## Declare a C++ library
 add_library(
-  ${PROJECT_NAME} src/visual_servoing_node.cpp
+  ${PROJECT_NAME} src/holo_visual_servoing_node.cpp
   src/non_holo_visual_servoing_node.cpp
 )
 
@@ -149,7 +149,7 @@ add_library(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(
   ${PROJECT_NAME}_node src/visual_servoing_main.cpp
-  src/visual_servoing_node.cpp
+  src/holo_visual_servoing_node.cpp
   src/non_holo_visual_servoing_node.cpp
 )
 
