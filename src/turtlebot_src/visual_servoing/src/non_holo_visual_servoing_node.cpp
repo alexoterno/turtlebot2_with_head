@@ -85,7 +85,7 @@ void NonHoloVisualServoing::init_vs(){
   // std::cout << "eJe" << std::endl;
   // std::cout << eJe << std::endl;
   J_Robot_invert = Eigen::MatrixXd::Zero(3, 3);
-  J_Robot_invert(0, 0)= 1;
+  J_Robot_invert(0, 0)= -1;
   x_pan_robot = 0.1;
   robot_velocities = Eigen::MatrixXd::Zero(3,1);
   camera_velocities = Eigen::MatrixXd::Zero(3,1);
@@ -219,18 +219,18 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
   //
   /*DO CONTROL*/
   // std::cout << "J_Robot_invert: " << std::endl;
-  J_Robot_invert (0, 1) = cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+  J_Robot_invert (0, 1) = -cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
   J_Robot_invert (0, 2) = -sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
   J_Robot_invert (1, 1) = sin(head_pan_angle);
   J_Robot_invert (1, 2) = cos(head_pan_angle);
-  J_Robot_invert (2, 1) = -cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+  J_Robot_invert (2, 1) = cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
   J_Robot_invert (2, 2) = sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
   // std::cout << J_Robot_invert << std::endl;
   camera_velocities (0) = v[4];
   camera_velocities (1) = v[0];
   camera_velocities (2) = v[2];
-  // std::cout << "camera_velocities" << std::endl;
-  // std::cout << camera_velocities << std::endl;
+  std::cout << "camera_velocities" << std::endl;
+  std::cout << camera_velocities << std::endl;
   robot_velocities = J_Robot_invert * camera_velocities;
   std::cout << "robot_velocities" << std::endl;
   std::cout << robot_velocities << std::endl;
