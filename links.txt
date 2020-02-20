@@ -69,9 +69,10 @@ ROS tutorials :
       https://visp.inria.fr/
     ROS URDF :
       http://wiki.ros.org/urdf/Tutorials/
-    Deep Learning with ROS and Gazebo :
+    Reinforcement Learning with ROS and Gazebo :
       http://wiki.ros.org/openai_ros
       https://www.youtube.com/watch?v=hcWaiJOaSjo
+      https://github.com/alidemir1/RosGazeboParallelSimulations/blob/master/startSimulations/gazeboSimulation0.sh
 
   Youtube :
     https://www.youtube.com/watch?v=Qh15Nol5htM&list=PLSzYQGCXRW1H8R2Bok_K8wcsE12_49alQ
