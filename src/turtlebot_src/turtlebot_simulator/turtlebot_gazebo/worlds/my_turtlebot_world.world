@@ -442,7 +442,7 @@
       </link>
       <pose>0.497681 0 0 0 -0 0</pose>
     </model>
-    <state world_name='default'>-=-=-=-
+    <state world_name='default'>
       <sim_time>0 0</sim_time>
       <real_time>0 44986</real_time>
       <wall_time>1377677575 940727583</wall_time>
@@ -474,9 +474,9 @@
         </link>
       </model>
       <model name='Marker0'>
-        <pose>5 5 0.086631 0 0 -0.639737</pose>
+        <pose>-3 3 0.086631 0 0 -0.639737</pose>
         <link name='link'>
-          <pose>1.07513 -0.689512 0.086631 0 0 -0.639737</pose>
+          <pose>-3 3 0.086631 0 0 -0.639737</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -484,7 +484,7 @@
       </model>
     </state>
     <gui fullscreen='0'>
-      <camera name='user_camera'>
+      <camera name='user_camera'>s
         <pose>1.33336 -0.422442 27.6101 3e-06 1.5698 3.04015</pose>
         <view_controller>orbit</view_controller>
       </camera>
@@ -662,6 +662,7 @@
           <geometry>
             <mesh>
               <uri>model://marker0/meshes/Marker0.dae</uri>
+              <scale>1 1 1</scale>
             </mesh>
           </geometry>
         </visual>
@@ -674,5 +675,6 @@
         <gravity>1</gravity>
       </link>
       <pose>1 0 0 0 -0 0</pose>
+    </model>
   </world>
 </sdf>

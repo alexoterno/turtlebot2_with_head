@@ -1,0 +1,102 @@
+Gazebo :
+  https://bitbucket.org/osrf/gazebo_models/src/default/
+  http://gazebosim.org/tutorials
+  Model :
+  http://data.nvision2.eecs.yorku.ca/3DGEMS/
+
+ROS Robot :
+  https://robots.ros.org/
+  http://wiki.ros.org/robotican/Tutorials
+
+  Examples :
+    http://wiki.ros.org/pepper/Tutorials
+    https://robots.ros.org/tiago++/
+    https://robots.ros.org/jazz/
+    http://wiki.ros.org/turtlebot3
+    http://wiki.ros.org/Robots/TIAGo/Tutorials/Installation/TiagoSimulation
+    http://wiki.ros.org/Robots/REEM/Tutorials/Launching%20a%20REEM%20Gazebo%20simulation
+    http://emanual.robotis.com/docs/en/platform/turtlebot3/slam/#slam
+
+    turtlebot2 :
+      https://robots.ros.org/turtlebot/
+      https://www.turtlebot.com/turtlebot2/
+      http://wiki.ros.org/turtlebot/Tutorials/indigo/Turtlebot%20Installation (Indigo)
+      https://github.com/gaunthan/Turtlebot2-On-Melodic (Melodic)
+      http://learn.turtlebot.com/ (Indigo) & https://github.com/markwsilliman/turtlebot
+
+    ROBOTIS_op3:
+      http://wiki.ros.org/robotis_op3
+      http://emanual.robotis.com/docs/en/platform/op3/simulation/
+      https://github.com/ROBOTIS-GIT/ROBOTIS-OP3
+
+    REEMC :
+      http://wiki.ros.org/Robots/REEM-C
+
+ROS tutorials :
+  ROS wiki :
+    http://wiki.ros.org/ROS/Tutorials/
+    http://wiki.ros.org/catkin/CMakeLists.txt
+    http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29
+    http://wiki.ros.org/msg
+    http://wiki.ros.org/roscpp/Overview/Publishers%20and%20Subscribers
+    http://wiki.ros.org/rospy/Overview
+    http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29
+    rosnode :
+      http://wiki.ros.org/rosnode
+    rostpic :
+      http://wiki.ros.org/rostopic
+    rosmsg :
+      http://wiki.ros.org/rosmsg
+      http://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv
+    rosbag :
+      http://wiki.ros.org/rosbag/Commandline
+    rosaction :
+      http://wiki.ros.org/actionlib
+      http://wiki.ros.org/actionlib/Tutorials
+      http://wiki.ros.org/actionlib/DetailedDescription
+    rosservice :
+      http://wiki.ros.org/rosservice
+      http://wiki.ros.org/Services
+
+    ros navigation :
+      http://wiki.ros.org/navigation
+      move_base :
+        http://wiki.ros.org/move_base
+    ROS Visual Servoing :
+      https://github.com/lagadic/visp_ros
+      https://github.com/babaksit/aras_visual_servo
+      https://github.com/babaksit/aras_visual_servo
+      https://visp.inria.fr/
+    ROS URDF :
+      http://wiki.ros.org/urdf/Tutorials/
+    Reinforcement Learning with ROS and Gazebo :
+      http://wiki.ros.org/openai_ros
+      https://www.youtube.com/watch?v=hcWaiJOaSjo
+      https://github.com/alidemir1/RosGazeboParallelSimulations/blob/master/startSimulations/gazeboSimulation0.sh
+
+  Youtube :
+    https://www.youtube.com/watch?v=Qh15Nol5htM&list=PLSzYQGCXRW1H8R2Bok_K8wcsE12_49alQ
+    https://www.youtube.com/watch?v=_GgHFuib_LU
+    https://www.youtube.com/watch?v=9U6GDonGFHw
+
+  http://homepages.laas.fr/ostasse/Teaching/ROS/rosintro.pdf (btw in french)
+  Book :
+    https://www.pishrobot.com/wp-content/uploads/2018/02/ROS-robot-programming-book-by-turtlebo3-developers-EN.pdf
+
+Audio-Visual Servoing :
+  http://paduaresearch.cab.unipd.it/8866/1/riccardo_levorato_tesi.pdf
+  https://tel.archives-ouvertes.fr/tel-01426710v1/document
+
+Visual Servoing Project :
+  https://github.com/RiddhimanRaut/Ur5_Visual_Servoing/blob/master/ur5_control_nodes/src/vs_ur5.py
+  https://github.com/willshw/ArmVS/blob/master/src/visual_servoing.py
+  https://github.com/cefisalam/MSc_Robotics_Project
+  https://github.com/babaksit/aras_visual_servo
+  https://github.com/anissalintang/vs_turtlebot_project
+
+  roslaunch my_turtlebot_simulator.launch robot:=_extended gui:=false head_controller:=true pause:=false world_file:=/local_scratch/aauterna/git/src/turtlebot_src/turtlebot_simulator/turtlebot_gazebo/worlds/my_turtlebot_world.world
+  roslaunch turtlebot_teleop keyboard_teleop.launch
+  roslaunch turtlebot_gazebo gmapping_demo.launch
+  roslaunch op3_bringup op3_full_visualization.launch robot:=_extended
+  rqt_graph
+  roslaunch visual_servoing visual_servoing.launch
