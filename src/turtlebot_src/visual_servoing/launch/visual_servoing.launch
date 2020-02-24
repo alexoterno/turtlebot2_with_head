@@ -1,12 +1,13 @@
 <launch>
+  <arg name="vs_joints" default="pan"/>
 
-  <node pkg="visual_servoing" type="visual_servoing_node" name="visual_servoing" output="screen">
+  <node pkg="visual_servoing" type="visual_servoing_node" name="visual_servoing" output="screen" args="$(arg vs_joints)">
     <param name="cmd_vel" value="cmd_vel_mux/input/navi"/>
     <remap from="head_tilt_position" to="/robotis_op3/head_tilt_position/command"/>
     <remap from="head_pan_position" to="/robotis_op3/head_pan_position/command"/>
-    <remap from="/camera_info" to="/camera/rgb/camera_info"/>
+    <!-- <remap from="/camera_info" to="/camera/rgb/camera_info"/> -->
     <!-- <remap from="/camera_info" to="/camera/depth/camera_info"/>  -->
-    <!-- <remap from="/camera_info" to="/robotis_op3/camera/camera_info"/> -->
+    <remap from="/camera_info" to="/robotis_op3/camera/camera_info"/>
   </node>
   <node pkg="visp_auto_tracker" type="visp_auto_tracker" name="visp_auto_tracker">
    <param name="model_path" type="string" value="$(find visp_auto_tracker)/models" />
@@ -14,9 +15,9 @@
    <param name="debug_display" value="True" />
    <remap from="/visp_auto_tracker/camera_info" to="/robotis_op3/camera/camera_info"/>
    <!-- <remap from="/visp_auto_tracker/camera_info" to="/camera/depth/camera_info"/> -->
-   <remap from="/visp_auto_tracker/camera_info" to="/camera/rgb/camera_info"/>
-   <remap from="/visp_auto_tracker/image_raw" to="/camera/rgb/image_raw"/>
+   <!-- <remap from="/visp_auto_tracker/camera_info" to="/camera/rgb/camera_info"/> -->
+   <!-- <remap from="/visp_auto_tracker/image_raw" to="/camera/rgb/image_raw"/> -->
    <!-- <remap from="/visp_auto_tracker/image_raw" to="/camera/depth/image_raw"/> -->
-   <!-- <remap from="/visp_auto_tracker/image_raw" to="/robotis_op3/camera/image_raw"/> -->
+   <remap from="/visp_auto_tracker/image_raw" to="/robotis_op3/camera/image_raw"/>
  </node>
 </launch>

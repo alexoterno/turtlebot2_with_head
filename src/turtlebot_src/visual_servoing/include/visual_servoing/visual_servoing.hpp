@@ -131,6 +131,8 @@ class NonHoloVisualServoing{
     geometry_msgs::Twist out_cmd_vel;
     std_msgs::Float64 out_pan_vel;
     std_msgs::Float64 out_tilt_vel;
+    double pan_vel;
+    double tilt_vel;
     vpPoint origin;
     vpFeaturePoint s_x, s_xd;
     vpFeatureDepth s_Z, s_Zd;
@@ -151,6 +153,7 @@ class NonHoloVisualServoing{
     double head_tilt_angle;
     double roll, pitch, yaw;
     double x_pan_robot;
+    std::string vs_joints;
 
   public:
     void init_vs();
@@ -161,7 +164,7 @@ class NonHoloVisualServoing{
     void mobileBasePoseCallback(const nav_msgs::OdometryConstPtr& msg); // callback to get the mobile base pose
     void headPanPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
     void headTiltPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
-    NonHoloVisualServoing(); // constructor
+    NonHoloVisualServoing(const std::string s); // constructor
     ~NonHoloVisualServoing(); // deconstructor
 
 };

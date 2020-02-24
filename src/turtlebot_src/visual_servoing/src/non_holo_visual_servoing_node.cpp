@@ -5,7 +5,7 @@
 //------------------------------------
 // constructor:
 //------------------------------------
-NonHoloVisualServoing::NonHoloVisualServoing(){
+NonHoloVisualServoing::NonHoloVisualServoing(const std::string s){
   ROS_INFO("Non Holonomic Visual Servoing Algorithm");
   ROS_INFO("Initializing values");
   str_kinect = "Kinect camera";
@@ -26,6 +26,7 @@ NonHoloVisualServoing::NonHoloVisualServoing(){
   Head_tilt_pose_sub_ = nh_.subscribe("/robotis_op3/head_tilt_position/state", 10, &NonHoloVisualServoing::headTiltPoseCallback, this);
   // disp.init(im, 0, 0, "a"); // display initialization
   // ROS_INFO("Display device initialized");
+  vs_joints = s;
 }
 
 //------------------------------------
@@ -41,7 +42,7 @@ void NonHoloVisualServoing::init_vs(){
   camera_info = false;
   valid_pose = false;
   valid_pose_prev = false;
-  depth = 0.15;
+  depth = 0.07;
   // lambda = 1.;
   Z = Zd = depth;
   // v.resize(2);
@@ -70,7 +71,8 @@ void NonHoloVisualServoing::init_vs(){
   // Create the current x visual feature
   vpFeatureBuilder::create(s_x, cam, ip);
 
-  // Create the desired x* visual feature
+  // Build a 2D point visual feature from the point coordinates in the image plan x and y.
+  //The parameter Z which describes the depth, is set in the same time.
   s_xd.buildFrom(0, 0, Zd);
 
   // Add the feature
@@ -80,15 +82,27 @@ void NonHoloVisualServoing::init_vs(){
 
   // Add the feature
   task.addFeature(s_Z, s_Zd);
+
+
   // std::cout << "cVe" << std::endl;
   // std::cout << cVe << std::endl;
   // std::cout << "eJe" << std::endl;
   // std::cout << eJe << std::endl;
-  J_Robot_invert = Eigen::MatrixXd::Zero(3, 3);
-  J_Robot_invert(0, 0)= -1;
-  x_pan_robot = 0.1;
-  robot_velocities = Eigen::MatrixXd::Zero(3,1);
-  camera_velocities = Eigen::MatrixXd::Zero(3,1);
+  if(vs_joints == "pan"){
+    J_Robot_invert = Eigen::MatrixXd::Zero(3, 3);
+    J_Robot_invert(0, 0)= -1;
+    x_pan_robot = 0.1;
+    robot_velocities = Eigen::MatrixXd::Zero(3,1);
+    camera_velocities = Eigen::MatrixXd::Zero(3,1);
+  }
+  else if(vs_joints == "pan_tilt"){
+    J_Robot_invert = Eigen::MatrixXd::Zero(6, 6); // pseudo invert
+    robot_velocities = Eigen::MatrixXd::Zero(6,1);
+    camera_velocities = Eigen::MatrixXd::Zero(6,1);
+  }
+  pan_vel = 0;
+  tilt_vel = 0;
+  std::cout << "visual_servoing with : " << vs_joints << std::endl;
   ROS_INFO("Initializing visual variables ended");
 }
 
@@ -166,6 +180,14 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
     origin.project(cMo);
     Z = origin.get_Z(); // Get the point Z coordinate in the camera frame
     std::cout << "Z : " << Z << std::endl;
+    // std::cout << "s_x : " << s_x.get_s() << std::endl;
+    // std::cout << "s_xd : " << s_xd.get_s()  << std::endl;
+    // std::cout << "s_Z x: " << s_Z.get_x()  << std::endl;
+    // std::cout << "s_Zd x: " << s_Zd.get_x()  << std::endl;
+    // std::cout << "s_Z y: " << s_Z.get_y()  << std::endl;
+    // std::cout << "s_Zd y: " << s_Zd.get_y()  << std::endl;
+    // std::cout << "s_Z : " << s_Z.get_s()  << std::endl;
+    // std::cout << "s_Zd : " << s_Zd.get_s()  << std::endl;
     if ((Z <= depth * high_ratio) && (Z >= depth * low_ratio)){//IF1
         while(1){ //Infinite Loop -- Here we have finished our task
 
@@ -186,8 +208,8 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
       out_cmd_vel.angular.x = 0;
       out_cmd_vel.angular.y = 0;
       out_cmd_vel.angular.z = 0.1; // turn to find the marker
-      out_pan_vel.data = 0.;
-      out_tilt_vel.data = 0.;
+      out_pan_vel.data = pan_vel;
+      out_tilt_vel.data = tilt_vel;
       mobile_base_pub_.publish(out_cmd_vel);
       head_pan_pub_.publish(out_pan_vel);
       head_tilt_pub_.publish(out_tilt_vel);
@@ -219,16 +241,18 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
   //
   /*DO CONTROL*/
   // std::cout << "J_Robot_invert: " << std::endl;
-  J_Robot_invert (0, 1) = -cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-  J_Robot_invert (0, 2) = -sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-  J_Robot_invert (1, 1) = sin(head_pan_angle);
-  J_Robot_invert (1, 2) = cos(head_pan_angle);
-  J_Robot_invert (2, 1) = cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-  J_Robot_invert (2, 2) = sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-  // std::cout << J_Robot_invert << std::endl;
-  camera_velocities (0) = v[4];
-  camera_velocities (1) = v[0];
-  camera_velocities (2) = v[2];
+  if(vs_joints == "pan"){
+    J_Robot_invert (0, 1) = -cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+    J_Robot_invert (0, 2) = -sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+    J_Robot_invert (1, 1) = -sin(head_pan_angle);
+    J_Robot_invert (1, 2) = cos(head_pan_angle);
+    J_Robot_invert (2, 1) = cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+    J_Robot_invert (2, 2) = sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+    // std::cout << J_Robot_invert << std::endl;
+    camera_velocities (0) = v[4];
+    camera_velocities (1) = v[0];
+    camera_velocities (2) = v[2];
+  }
   std::cout << "camera_velocities" << std::endl;
   std::cout << camera_velocities << std::endl;
   robot_velocities = J_Robot_invert * camera_velocities;
@@ -250,8 +274,10 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
   out_cmd_vel.angular.x = 0;
   out_cmd_vel.angular.y = 0;
   out_cmd_vel.angular.z = robot_velocities(2);
-  out_pan_vel.data = robot_velocities(0);
-  out_tilt_vel.data = 0.;
+  pan_vel += robot_velocities(0);
+  out_pan_vel.data = pan_vel;
+  tilt_vel += 0;
+  out_tilt_vel.data = tilt_vel;
 
   mobile_base_pub_.publish(out_cmd_vel);
   head_pan_pub_.publish(out_pan_vel);
@@ -268,8 +294,8 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
     out_cmd_vel.angular.x = 0;
     out_cmd_vel.angular.y = 0;
     out_cmd_vel.angular.z = 0;
-    out_pan_vel.data = 0.;
-    out_tilt_vel.data = 0.;
+    out_pan_vel.data = pan_vel;
+    out_tilt_vel.data = tilt_vel;
     mobile_base_pub_.publish(out_cmd_vel);
     head_pan_pub_.publish(out_pan_vel);
     head_tilt_pub_.publish(out_tilt_vel);
