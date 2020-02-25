@@ -125,8 +125,11 @@ class NonHoloVisualServoing{
     // double J_Robot[3][3]={0};
     // double J_Robot_invert[3][3]={0};
     Eigen::MatrixXd J_Robot_invert;
+    Eigen::MatrixXd J_Robot;
+    Eigen::MatrixXd J_Robot_product;
     Eigen::MatrixXd camera_velocities;
     Eigen::MatrixXd robot_velocities;
+    Eigen::MatrixXd out_command;
     vpHomogeneousMatrix cMo;
     geometry_msgs::Twist out_cmd_vel;
     std_msgs::Float64 out_pan_vel;
@@ -154,6 +157,16 @@ class NonHoloVisualServoing{
     double roll, pitch, yaw;
     double x_pan_robot;
     std::string vs_joints;
+    const double L11 = 0.019;
+    const double L12 = -0.050; // y_camera is downward
+    const double L13 = 0.014;
+    const double L21 = 0.029;
+    const double L22 = 0.010;
+    const double L23 = 0.019;
+    const double L31 = 0.086;
+    const double L32 = 0.000;
+    const double L33 = 0.818;
+    double det;
 
   public:
     void init_vs();

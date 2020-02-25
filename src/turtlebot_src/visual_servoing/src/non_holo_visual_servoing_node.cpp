@@ -42,7 +42,7 @@ void NonHoloVisualServoing::init_vs(){
   camera_info = false;
   valid_pose = false;
   valid_pose_prev = false;
-  depth = 0.07;
+  depth = 0.075;
   // lambda = 1.;
   Z = Zd = depth;
   // v.resize(2);
@@ -90,16 +90,17 @@ void NonHoloVisualServoing::init_vs(){
   // std::cout << eJe << std::endl;
   if(vs_joints == "pan"){
     J_Robot_invert = Eigen::MatrixXd::Zero(3, 3);
-    J_Robot_invert(0, 0)= -1;
-    x_pan_robot = 0.1;
     robot_velocities = Eigen::MatrixXd::Zero(3,1);
     camera_velocities = Eigen::MatrixXd::Zero(3,1);
   }
   else if(vs_joints == "pan_tilt"){
-    J_Robot_invert = Eigen::MatrixXd::Zero(6, 6); // pseudo invert
+    J_Robot_invert = Eigen::MatrixXd::Zero(4, 6); // moore pseudo invert
+    J_Robot = Eigen::MatrixXd::Zero(6, 4);
+    J_Robot_product = Eigen::MatrixXd::Zero(4, 4);
     robot_velocities = Eigen::MatrixXd::Zero(6,1);
     camera_velocities = Eigen::MatrixXd::Zero(6,1);
   }
+  out_command = Eigen::MatrixXd::Zero(4,1);
   pan_vel = 0;
   tilt_vel = 0;
   std::cout << "visual_servoing with : " << vs_joints << std::endl;
@@ -242,22 +243,69 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
   /*DO CONTROL*/
   // std::cout << "J_Robot_invert: " << std::endl;
   if(vs_joints == "pan"){
-    J_Robot_invert (0, 1) = -cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-    J_Robot_invert (0, 2) = -sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-    J_Robot_invert (1, 1) = -sin(head_pan_angle);
-    J_Robot_invert (1, 2) = cos(head_pan_angle);
-    J_Robot_invert (2, 1) = cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-    J_Robot_invert (2, 2) = sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+    std::cout << "pan only" << std::endl;
+    det = 2*((L11-L23)*sin(head_pan_angle)-2*(L13+L22)*cos(head_pan_angle))+mobile_base_pose_s+L31+2*(L13+L22);
+    J_Robot_invert (0, 0) = ((L22+L13)*cos(head_pan_angle)+(L23-L11)*sin(head_pan_angle)-mobile_base_pose_s-L31-2*(L13+L22))/det;
+    J_Robot_invert (1, 0) = (-(L13*L32+L22*L32+(L11-L23)*(mobile_base_pose_s+L31))*cos(head_pan_angle)+(-L13*(2*L13+mobile_base_pose_s+4*L22+L31)-L22*(mobile_base_pose_s+L31)-2*(L11-L23)*(L11-L23-L32/2)-2*L22*L22)*sin(head_pan_angle))/det;
+    J_Robot_invert (2, 0) = ((L22+L13)*cos(head_pan_angle)+(L23-L11)*sin(head_pan_angle))/det;
+    J_Robot_invert (0, 1) = -cos(head_pan_angle)/det;
+    J_Robot_invert (1, 1) = ((2*(L11-L23)-L32)*cos(head_pan_angle)-(2*(L13+L22)+L31+mobile_base_pose_s)*sin(head_pan_angle)+2*(L23-L11))/det;
+    J_Robot_invert (2, 1) = cos(head_pan_angle)/det;
+    J_Robot_invert (0, 2) = -sin(head_pan_angle)/det;
+    J_Robot_invert (1, 2) = ((2*(L13+L22)+L31+mobile_base_pose_s)*cos(head_pan_angle)+(2*(L11-L22)-L32)*sin(head_pan_angle)-2*(L13+L22))/det;
+    J_Robot_invert (2, 2) = sin(head_pan_angle)/det;
+    // J_Robot_invert (0, 1) = -cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+    // J_Robot_invert (0, 2) = -sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+    // J_Robot_invert (1, 1) = -sin(head_pan_angle);
+    // J_Robot_invert (1, 2) = cos(head_pan_angle);
+    // J_Robot_invert (2, 1) = cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
+    // J_Robot_invert (2, 2) = sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
     // std::cout << J_Robot_invert << std::endl;
     camera_velocities (0) = v[4];
     camera_velocities (1) = v[0];
     camera_velocities (2) = v[2];
+
+    robot_velocities = J_Robot_invert * camera_velocities;
+
+    out_command(1) = robot_velocities(0);
+    out_command(2) = robot_velocities(1);
+    out_command(3) = robot_velocities(2);
+  }
+  else if(vs_joints == "pan_tilt"){
+    std::cout << "pan_tilt" << std::endl;
+    J_Robot (0, 0) = -1;
+    J_Robot (1, 1) = -cos(head_tilt_angle);
+    J_Robot (1, 3) = -cos(head_tilt_angle);
+    J_Robot (2, 1) = sin(head_tilt_angle);
+    J_Robot (2, 3) = sin(head_tilt_angle);
+    J_Robot (3, 1) = 2*L13-L13*cos(head_tilt_angle)-L12*sin(head_pan_angle)+L22;
+    J_Robot (3, 2) = -sin(head_pan_angle);
+    J_Robot (3, 3) = (mobile_base_pose_s+2*(L13+L22)+L31)*cos(head_pan_angle)+(2*(L11-L23)-L32)*sin(head_pan_angle)-L13*cos(head_tilt_angle)-L12*sin(head_tilt_angle)-L22;
+    J_Robot (4, 0) = -L13;
+    J_Robot (4, 1) = (L23-L11)*sin(head_tilt_angle);
+    J_Robot (4, 2) = sin(head_tilt_angle)*cos(head_pan_angle);
+    J_Robot (4, 3) = sin(head_tilt_angle)*(sin(head_pan_angle)*(mobile_base_pose_s+2*(L13+L22)+L31)+cos(head_pan_angle)*(L32+2*(L23-L11))-L23+L11);
+    J_Robot (5, 0) = L12;
+    J_Robot (5, 1) = (L23-L11)*cos(head_tilt_angle);
+    J_Robot (5, 2) = cos(head_tilt_angle)*cos(head_pan_angle);
+    J_Robot (5, 3) = cos(head_tilt_angle)*(sin(head_pan_angle)*(mobile_base_pose_s+2*(L13+L22)+L31)+cos(head_pan_angle)*(L32+2*(L23-L11))-L23+L11);
+    J_Robot_invert = (J_Robot.transpose()*J_Robot).inverse()*J_Robot.transpose(); // Moore pseudo inverse
+
+    camera_velocities (0) = v[3];
+    camera_velocities (1) = v[4];
+    camera_velocities (2) = v[5];
+    camera_velocities (3) = v[0];
+    camera_velocities (4) = v[1];
+    camera_velocities (5) = v[2];
+
+    robot_velocities = J_Robot_invert * camera_velocities;
+    
+    out_command = robot_velocities;
   }
   std::cout << "camera_velocities" << std::endl;
   std::cout << camera_velocities << std::endl;
-  robot_velocities = J_Robot_invert * camera_velocities;
-  std::cout << "robot_velocities" << std::endl;
-  std::cout << robot_velocities << std::endl;
+  std::cout << "out_command" << std::endl;
+  std::cout << out_command << std::endl;
   //////////////////////
   if (std::abs(v[0]) > max_linear_vel || std::abs(v[1]) > max_angular_vel) {
       ROS_INFO("Vel exceed max allowed");
@@ -268,15 +316,15 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
     }
   // std::cout << "velocity" << std::endl;
   // std::cout << v << std::endl;
-  out_cmd_vel.linear.x = robot_velocities(1);
+  out_cmd_vel.linear.x = out_command(2);
   out_cmd_vel.linear.y = 0;
   out_cmd_vel.linear.z = 0;
   out_cmd_vel.angular.x = 0;
   out_cmd_vel.angular.y = 0;
-  out_cmd_vel.angular.z = robot_velocities(2);
-  pan_vel += robot_velocities(0);
+  out_cmd_vel.angular.z = out_command(3);
+  pan_vel += out_command(1);
   out_pan_vel.data = pan_vel;
-  tilt_vel += 0;
+  tilt_vel += out_command(0);
   out_tilt_vel.data = tilt_vel;
 
   mobile_base_pub_.publish(out_cmd_vel);
