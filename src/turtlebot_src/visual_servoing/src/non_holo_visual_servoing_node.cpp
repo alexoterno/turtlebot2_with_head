@@ -18,12 +18,12 @@ NonHoloVisualServoing::NonHoloVisualServoing(const std::string s){
   // image_robotis_sub_ = nh_.subscribe<sensor_msgs::Image>("/robotis_op3/camera/image_raw", 10, boost::bind (&NonHoloVisualServoing::cameraCallback, this,  _1, &str_robotis));
   // image_kinect_sub_ = nh_.subscribe<sensor_msgs::Image>("/camera/rgb/image_raw", 10, boost::bind (&NonHoloVisualServoing::cameraCallback, this,  _1, &str_kinect));
   // image_robotis_sub_ = nh_.subscribe<sensor_msgs::Image>("/camera/depth/image_raw", 10, boost::bind (&NonHoloVisualServoing::cameraCallback, this,  _1, &str_depth_kinect));
-  PoseTarget_tracker_sub_   = nh_.subscribe("/visp_auto_tracker/object_position", 10, &NonHoloVisualServoing::poseCallback, this);
-  CamInfoParam_sub_ = nh_.subscribe("/camera_info", 10, &NonHoloVisualServoing::CameraInfoCallback, this);
-  Status_sub_ = nh_.subscribe("/visp_auto_tracker/status", 10, &NonHoloVisualServoing::statusCallback, this);
-  Mobile_base_pose_sub_ = nh_.subscribe("/odom", 10, &NonHoloVisualServoing::mobileBasePoseCallback, this);
-  Head_pan_pose_sub_ = nh_.subscribe("/robotis_op3/head_pan_position/state", 10, &NonHoloVisualServoing::headPanPoseCallback, this);
-  Head_tilt_pose_sub_ = nh_.subscribe("/robotis_op3/head_tilt_position/state", 10, &NonHoloVisualServoing::headTiltPoseCallback, this);
+  PoseTarget_tracker_sub_   = nh_.subscribe("/visp_auto_tracker/object_position", 1, &NonHoloVisualServoing::poseCallback, this);
+  CamInfoParam_sub_ = nh_.subscribe("/camera_info", 1, &NonHoloVisualServoing::CameraInfoCallback, this);
+  Status_sub_ = nh_.subscribe("/visp_auto_tracker/status", 1, &NonHoloVisualServoing::statusCallback, this);
+  Mobile_base_pose_sub_ = nh_.subscribe("/odom", 1, &NonHoloVisualServoing::mobileBasePoseCallback, this);
+  Head_pan_pose_sub_ = nh_.subscribe("/robotis_op3/head_pan_position/state", 1, &NonHoloVisualServoing::headPanPoseCallback, this);
+  Head_tilt_pose_sub_ = nh_.subscribe("/robotis_op3/head_tilt_position/state", 1, &NonHoloVisualServoing::headTiltPoseCallback, this);
   // disp.init(im, 0, 0, "a"); // display initialization
   // ROS_INFO("Display device initialized");
   vs_joints = s;
@@ -82,28 +82,28 @@ void NonHoloVisualServoing::init_vs(){
 
   // Add the feature
   task.addFeature(s_Z, s_Zd);
-
-
   // std::cout << "cVe" << std::endl;
   // std::cout << cVe << std::endl;
   // std::cout << "eJe" << std::endl;
   // std::cout << eJe << std::endl;
+
   if(vs_joints == "pan"){
-    J_Robot_invert = Eigen::MatrixXd::Zero(3, 3);
-    robot_velocities = Eigen::MatrixXd::Zero(3,1);
-    camera_velocities = Eigen::MatrixXd::Zero(3,1);
+    J_Robot = Eigen::MatrixXd::Zero(4, 4);
+    J_Robot_invert = Eigen::MatrixXd::Zero(4, 4);
+    robot_velocities = Eigen::MatrixXd::Zero(4,1);
+    camera_velocities = Eigen::MatrixXd::Zero(4,1);
   }
   else if(vs_joints == "pan_tilt"){
-    J_Robot_invert = Eigen::MatrixXd::Zero(4, 6); // moore pseudo invert
-    J_Robot = Eigen::MatrixXd::Zero(6, 4);
-    J_Robot_product = Eigen::MatrixXd::Zero(4, 4);
-    robot_velocities = Eigen::MatrixXd::Zero(6,1);
-    camera_velocities = Eigen::MatrixXd::Zero(6,1);
+    J_Robot_invert = Eigen::MatrixXd::Zero(5, 7); // moore pseudo invert
+    J_Robot = Eigen::MatrixXd::Zero(7, 5);
+    robot_velocities = Eigen::MatrixXd::Zero(5,1);
+    camera_velocities = Eigen::MatrixXd::Zero(7,1);
   }
   out_command = Eigen::MatrixXd::Zero(4,1);
-  pan_vel = 0;
-  tilt_vel = 0;
+  pan_pos = 0;
+  tilt_pos = 0;
   std::cout << "visual_servoing with : " << vs_joints << std::endl;
+  valid_time = false;
   ROS_INFO("Initializing visual variables ended");
 }
 
@@ -125,7 +125,7 @@ void NonHoloVisualServoing::mobileBasePoseCallback(const nav_msgs::OdometryConst
   mobile_base_pose_x = msg->pose.pose.position.x;
   mobile_base_pose_y = msg->pose.pose.position.y;
   mobile_base_pose_s = pow((pow(mobile_base_pose_x, 2)+pow(mobile_base_pose_y, 2)),0.5);
-  // ROS_INFO("x: [%f], y: [%f], s : [%f]", mobile_base_pose_x, mobile_base_pose_y, mobile_base_pose_s);
+  ROS_INFO("x: [%f], y: [%f], s : [%f]", mobile_base_pose_x, mobile_base_pose_y, mobile_base_pose_s);
   tf::Quaternion q(msg->pose.pose.orientation.x,msg->pose.pose.orientation.y , msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
   tf::Matrix3x3 m(q);
   m.getRPY(roll, pitch, yaw);
@@ -173,6 +173,14 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
   try{
     t_start_loop = vpTime::measureTimeMs();
     ROS_INFO("New pose received");
+    new_t = ros::Time::now().toSec();
+    if(!valid_time){
+      old_t = new_t;
+      valid_time = true;
+    }
+    delta_t = new_t - old_t;
+    old_t = new_t;
+    std::cout << "delta_t : " << delta_t << std::endl;
     cMo = visp_bridge::toVispHomogeneousMatrix(msg->pose);
     // std::cout << "cMo" << std::endl;
     // std::cout << cMo << std::endl;
@@ -208,12 +216,12 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
       out_cmd_vel.linear.z = 0;
       out_cmd_vel.angular.x = 0;
       out_cmd_vel.angular.y = 0;
-      out_cmd_vel.angular.z = 0.1; // turn to find the marker
-      out_pan_vel.data = pan_vel;
-      out_tilt_vel.data = tilt_vel;
+      out_cmd_vel.angular.z = 0.; // turn to find the marker 0.1
+      out_pan_vel.data = pan_pos;
+      out_tilt_vel.data = tilt_pos;
       mobile_base_pub_.publish(out_cmd_vel);
-      head_pan_pub_.publish(out_pan_vel);
-      head_tilt_pub_.publish(out_tilt_vel);
+      // head_pan_pub_.publish(out_pan_vel);
+      // head_tilt_pub_.publish(out_tilt_vel);
       valid_pose = false;
       valid_pose_prev = valid_pose;
       return;
@@ -242,25 +250,24 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
   //
   /*DO CONTROL*/
   // std::cout << "J_Robot_invert: " << std::endl;
+
+
   if(vs_joints == "pan"){
-    std::cout << "pan only" << std::endl;
-    det = 2*((L11-L23)*sin(head_pan_angle)-2*(L13+L22)*cos(head_pan_angle))+mobile_base_pose_s+L31+2*(L13+L22);
-    J_Robot_invert (0, 0) = ((L22+L13)*cos(head_pan_angle)+(L23-L11)*sin(head_pan_angle)-mobile_base_pose_s-L31-2*(L13+L22))/det;
-    J_Robot_invert (1, 0) = (-(L13*L32+L22*L32+(L11-L23)*(mobile_base_pose_s+L31))*cos(head_pan_angle)+(-L13*(2*L13+mobile_base_pose_s+4*L22+L31)-L22*(mobile_base_pose_s+L31)-2*(L11-L23)*(L11-L23-L32/2)-2*L22*L22)*sin(head_pan_angle))/det;
-    J_Robot_invert (2, 0) = ((L22+L13)*cos(head_pan_angle)+(L23-L11)*sin(head_pan_angle))/det;
-    J_Robot_invert (0, 1) = -cos(head_pan_angle)/det;
-    J_Robot_invert (1, 1) = ((2*(L11-L23)-L32)*cos(head_pan_angle)-(2*(L13+L22)+L31+mobile_base_pose_s)*sin(head_pan_angle)+2*(L23-L11))/det;
-    J_Robot_invert (2, 1) = cos(head_pan_angle)/det;
-    J_Robot_invert (0, 2) = -sin(head_pan_angle)/det;
-    J_Robot_invert (1, 2) = ((2*(L13+L22)+L31+mobile_base_pose_s)*cos(head_pan_angle)+(2*(L11-L22)-L32)*sin(head_pan_angle)-2*(L13+L22))/det;
-    J_Robot_invert (2, 2) = sin(head_pan_angle)/det;
-    // J_Robot_invert (0, 1) = -cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-    // J_Robot_invert (0, 2) = -sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-    // J_Robot_invert (1, 1) = -sin(head_pan_angle);
-    // J_Robot_invert (1, 2) = cos(head_pan_angle);
-    // J_Robot_invert (2, 1) = cos(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-    // J_Robot_invert (2, 2) = sin(head_pan_angle)/(mobile_base_pose_s + x_pan_robot);
-    // std::cout << J_Robot_invert << std::endl;
+    // std::cout << "pan only" << std::endl;
+    J_Robot (0, 0) = -1;
+    J_Robot (0, 1) = -1;
+    J_Robot (1, 0) = -L22-L13;
+    J_Robot (1, 1) = -cos(head_pan_angle)*L31+sin(head_pan_angle)*L32-L22-L13;
+    J_Robot (1, 2) = -sin(head_pan_angle+yaw);
+    J_Robot (1, 3) = -cos(head_pan_angle+yaw);
+    J_Robot (2, 0) = -L23+L11;
+    J_Robot (2, 1) = -sin(head_pan_angle)*L31-sin(head_pan_angle)*L32-L22-L13;
+    J_Robot (2, 2) = cos(head_pan_angle+yaw);
+    J_Robot (2, 3) = -sin(head_pan_angle+yaw);
+    J_Robot (3, 2) = sin(yaw);
+    J_Robot (3, 3) = -cos(yaw);
+    J_Robot_invert = J_Robot.inverse();
+
     camera_velocities (0) = v[4];
     camera_velocities (1) = v[0];
     camera_velocities (2) = v[2];
@@ -269,26 +276,38 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
 
     out_command(1) = robot_velocities(0);
     out_command(2) = robot_velocities(1);
-    out_command(3) = robot_velocities(2);
+    out_command(3) = pow((pow(robot_velocities(2), 2)+pow(robot_velocities(3), 2)),0.5);
   }
   else if(vs_joints == "pan_tilt"){
-    std::cout << "pan_tilt" << std::endl;
+    // std::cout << "pan_tilt" << std::endl;
     J_Robot (0, 0) = -1;
+
     J_Robot (1, 1) = -cos(head_tilt_angle);
-    J_Robot (1, 3) = -cos(head_tilt_angle);
+    J_Robot (1, 2) = -cos(head_tilt_angle);
+
     J_Robot (2, 1) = sin(head_tilt_angle);
-    J_Robot (2, 3) = sin(head_tilt_angle);
-    J_Robot (3, 1) = 2*L13-L13*cos(head_tilt_angle)-L12*sin(head_pan_angle)+L22;
-    J_Robot (3, 2) = -sin(head_pan_angle);
-    J_Robot (3, 3) = (mobile_base_pose_s+2*(L13+L22)+L31)*cos(head_pan_angle)+(2*(L11-L23)-L32)*sin(head_pan_angle)-L13*cos(head_tilt_angle)-L12*sin(head_tilt_angle)-L22;
-    J_Robot (4, 0) = -L13;
-    J_Robot (4, 1) = (L23-L11)*sin(head_tilt_angle);
-    J_Robot (4, 2) = sin(head_tilt_angle)*cos(head_pan_angle);
-    J_Robot (4, 3) = sin(head_tilt_angle)*(sin(head_pan_angle)*(mobile_base_pose_s+2*(L13+L22)+L31)+cos(head_pan_angle)*(L32+2*(L23-L11))-L23+L11);
-    J_Robot (5, 0) = L12;
-    J_Robot (5, 1) = (L23-L11)*cos(head_tilt_angle);
-    J_Robot (5, 2) = cos(head_tilt_angle)*cos(head_pan_angle);
-    J_Robot (5, 3) = cos(head_tilt_angle)*(sin(head_pan_angle)*(mobile_base_pose_s+2*(L13+L22)+L31)+cos(head_pan_angle)*(L32+2*(L23-L11))-L23+L11);
+    J_Robot (2, 2) = sin(head_tilt_angle);
+
+    J_Robot (3, 1) = -cos(head_tilt_angle)*L13-sin(head_tilt_angle)*L12-L22;
+    J_Robot (3, 2) = -cos(head_tilt_angle)*L13-sin(head_tilt_angle)*L12-L22-cos(head_pan_angle)*L31+sin(head_tilt_angle)*L32;
+    J_Robot (3, 3) = -sin(head_pan_angle+yaw);
+    J_Robot (3, 4) = -cos(head_pan_angle+yaw);
+
+    J_Robot (4, 0) = L13;
+    J_Robot (4, 1) = sin(head_tilt_angle)*(L11-L23);
+    J_Robot (4, 2) = sin(head_tilt_angle)*(-sin(head_pan_angle)*L31-cos(head_tilt_angle)*L32+L11-L23);
+    J_Robot (4, 3) = sin(head_tilt_angle)*cos(head_pan_angle+yaw);
+    J_Robot (4, 4) = -sin(head_tilt_angle)*sin(head_pan_angle+yaw);
+
+    J_Robot (5, 0) = -L12;
+    J_Robot (5, 1) = cos(head_tilt_angle)*(L11-L23);
+    J_Robot (5, 2) = cos(head_tilt_angle)*(-sin(head_pan_angle)*L31-cos(head_tilt_angle)*L32+L11-L23);
+    J_Robot (5, 3) = cos(head_tilt_angle)*cos(head_pan_angle+yaw);
+    J_Robot (5, 4) = -cos(head_tilt_angle)*sin(head_pan_angle+yaw);
+
+    J_Robot (6, 3) = sin(yaw);
+    J_Robot (6, 4) = -cos(yaw);
+
     J_Robot_invert = (J_Robot.transpose()*J_Robot).inverse()*J_Robot.transpose(); // Moore pseudo inverse
 
     camera_velocities (0) = v[3];
@@ -299,9 +318,18 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
     camera_velocities (5) = v[2];
 
     robot_velocities = J_Robot_invert * camera_velocities;
-    
-    out_command = robot_velocities;
+
+    // out_command(0) = robot_velocities(0);
+    // out_command(1) = robot_velocities(1);
+    // out_command(2) = robot_velocities(2);
+    // out_command(3) = pow((pow(robot_velocities(3), 2)+pow(robot_velocities(4), 2)),0.5);
   }
+  std::cout << "J_Robot" << std::endl;
+  std::cout << J_Robot << std::endl;
+  std::cout << "J_Robot_invert" << std::endl;
+  std::cout << J_Robot_invert << std::endl;
+  std::cout << "robot_velocities" << std::endl;
+  std::cout << robot_velocities << std::endl;
   std::cout << "camera_velocities" << std::endl;
   std::cout << camera_velocities << std::endl;
   std::cout << "out_command" << std::endl;
@@ -314,24 +342,29 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
       v = 0;
       }
     }
-  // std::cout << "velocity" << std::endl;
-  // std::cout << v << std::endl;
-  out_cmd_vel.linear.x = out_command(2);
+  std::cout << "velocity" << std::endl;
+  std::cout << v << std::endl;
+  pan_pos = head_pan_angle;
+  tilt_pos = head_tilt_angle;
+  out_cmd_vel.linear.x = out_command(3);
   out_cmd_vel.linear.y = 0;
   out_cmd_vel.linear.z = 0;
   out_cmd_vel.angular.x = 0;
   out_cmd_vel.angular.y = 0;
-  out_cmd_vel.angular.z = out_command(3);
-  pan_vel += out_command(1);
-  out_pan_vel.data = pan_vel;
-  tilt_vel += out_command(0);
-  out_tilt_vel.data = tilt_vel;
+  out_cmd_vel.angular.z = out_command(2);
+  pan_pos += delta_t*out_command(1);
+  out_pan_vel.data = pan_pos;
+  tilt_pos += delta_t*out_command(0);
+  out_tilt_vel.data = tilt_pos;
 
   mobile_base_pub_.publish(out_cmd_vel);
-  head_pan_pub_.publish(out_pan_vel);
-  head_tilt_pub_.publish(out_tilt_vel);
+  // head_pan_pub_.publish(out_pan_vel);
+  // head_tilt_pub_.publish(out_tilt_vel);
   valid_pose_prev = valid_pose;
   valid_pose = false;
+  std::cout << "out_cmd_vel : " << out_cmd_vel << std::endl;
+  std::cout << "out_pan_vel : " << out_pan_vel << std::endl;
+  std::cout << "out_tilt_vel : " << out_tilt_vel << std::endl;
   }
 
   catch(...) {
@@ -342,11 +375,11 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
     out_cmd_vel.angular.x = 0;
     out_cmd_vel.angular.y = 0;
     out_cmd_vel.angular.z = 0;
-    out_pan_vel.data = pan_vel;
-    out_tilt_vel.data = tilt_vel;
+    out_pan_vel.data = pan_pos;
+    out_tilt_vel.data = tilt_pos;
     mobile_base_pub_.publish(out_cmd_vel);
-    head_pan_pub_.publish(out_pan_vel);
-    head_tilt_pub_.publish(out_tilt_vel);
+    // head_pan_pub_.publish(out_pan_vel);
+    // head_tilt_pub_.publish(out_tilt_vel);
   }
 }
 

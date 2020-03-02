@@ -12,7 +12,9 @@
 #include "tf/transform_datatypes.h"
 #include "math.h"
 #include <eigen3/Eigen/Dense>
-
+#include "message_filters/subscriber.h"
+#include "message_filters/synchronizer.h"
+#include "message_filters/sync_policies/approximate_time.h"
 #include "visp/vpImageIo.h"
 #include "visp_bridge/image.h"
 #include "visp_bridge/camera.h"
@@ -126,7 +128,6 @@ class NonHoloVisualServoing{
     // double J_Robot_invert[3][3]={0};
     Eigen::MatrixXd J_Robot_invert;
     Eigen::MatrixXd J_Robot;
-    Eigen::MatrixXd J_Robot_product;
     Eigen::MatrixXd camera_velocities;
     Eigen::MatrixXd robot_velocities;
     Eigen::MatrixXd out_command;
@@ -134,8 +135,8 @@ class NonHoloVisualServoing{
     geometry_msgs::Twist out_cmd_vel;
     std_msgs::Float64 out_pan_vel;
     std_msgs::Float64 out_tilt_vel;
-    double pan_vel;
-    double tilt_vel;
+    double pan_pos;
+    double tilt_pos;
     vpPoint origin;
     vpFeaturePoint s_x, s_xd;
     vpFeatureDepth s_Z, s_Zd;
@@ -167,6 +168,8 @@ class NonHoloVisualServoing{
     const double L32 = 0.000;
     const double L33 = 0.818;
     double det;
+    double delta_t, new_t, old_t;
+    bool valid_time;
 
   public:
     void init_vs();
@@ -177,6 +180,7 @@ class NonHoloVisualServoing{
     void mobileBasePoseCallback(const nav_msgs::OdometryConstPtr& msg); // callback to get the mobile base pose
     void headPanPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
     void headTiltPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
+    void callback(const geometry_msgs::PoseStampedConstPtr& msg1, const nav_msgs::OdometryConstPtr& msg2, const control_msgs::JointControllerStateConstPtr& msg3, const control_msgs::JointControllerStateConstPtr& msg4);
     NonHoloVisualServoing(const std::string s); // constructor
     ~NonHoloVisualServoing(); // deconstructor
 

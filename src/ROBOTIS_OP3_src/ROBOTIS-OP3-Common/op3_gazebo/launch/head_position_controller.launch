@@ -11,8 +11,9 @@
                                           head_tilt_position" />
 -->
 
-  <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false"
-  output="screen" ns="/robotis_op3" args="joint_state_controller
+  <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false" output="screen" ns="/robotis_op3" args="joint_state_controller
                                           head_pan_position
-                                          head_tilt_position" />
+                                          head_tilt_position" >
+      <param name="publish_frequency" type="double" value="30.0" />
+  </node>
 </launch>

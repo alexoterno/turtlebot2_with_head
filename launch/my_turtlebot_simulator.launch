@@ -26,9 +26,9 @@
     <arg name="robot" value="$(arg robot)"/>
   </include>
 
-  <!--node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="30.0" />
-  </node-->
+  <!-- <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"> -->
+    <!-- <param name="publish_frequency" type="double" value="30.0" /> -->
+  <!-- </node> -->
 
   <!-- Fake laser -->
   <node pkg="nodelet" type="nodelet" name="laserscan_nodelet_manager" args="manager"/>
