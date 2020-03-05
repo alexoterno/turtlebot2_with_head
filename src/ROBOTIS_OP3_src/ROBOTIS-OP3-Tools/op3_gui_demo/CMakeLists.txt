@@ -28,7 +28,7 @@ find_package(catkin REQUIRED COMPONENTS
   humanoid_nav_msgs
 )
 
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   find_package(Qt5Widgets REQUIRED)
@@ -102,7 +102,7 @@ endif()
 include_directories(
   ${op3_gui_demo_INCLUDE_DIRECTORIES}
   ${catkin_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 add_executable(${PROJECT_NAME} ${op3_gui_demo_SRCS} ${op3_gui_demo_MOCS} ${op3_gui_demo_UIS_H} ${op3_gui_demo_RCC})
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -120,7 +120,7 @@ class_loader_hide_library_symbols(${PROJECT_NAME})
 # Qt Environment
 ##############################################################################
 
-# this comes from qt_build's qt-ros.cmake which is automatically 
+# this comes from qt_build's qt-ros.cmake which is automatically
 # included via the dependency call in package.xml
 #rosbuild_prepare_qt4(QtCore QtGui) # Add the appropriate components to the component list here
 

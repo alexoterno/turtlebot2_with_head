@@ -32,5 +32,14 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "visual_servoing_node");
   NonHoloVisualServoing n_h_vsObject(vs_joints);
   // HoloVisualServoing vsObject;
-  ros::spin();
+  // ros::NodeHandle nh_; // node handle
+  // typedef message_filters::sync_policies::ApproximateTime<control_msgs::JointControllerState, control_msgs::JointControllerState> MySyncPolicy;
+  // typedef message_filters::Synchronizer<MySyncPolicy> Sync;
+  // boost::shared_ptr<Sync> sync;
+  // message_filters::Subscriber<control_msgs::JointControllerState> head_pan_pose_sub_(nh_, "/robotis_op3/head_pan_position/state", 1);
+  // message_filters::Subscriber<control_msgs::JointControllerState> head_tilt_pose_sub_(nh_, "/robotis_op3/head_tilt_position/state", 1);
+  // sync.reset(new Sync(MySyncPolicy(1), head_pan_pose_sub_, head_pan_pose_sub_));
+  // sync->registerCallback(boost::bind(&NonHoloVisualServoing::callback, this, _1, _2));
+
+  // ros::spin();
 }

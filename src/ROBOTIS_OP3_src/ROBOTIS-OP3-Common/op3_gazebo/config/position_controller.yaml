@@ -4,7 +4,7 @@ robotis_op3:
 
   joint_state_controller:
     type: joint_state_controller/JointStateController
-    publish_rate: 100
+    publish_rate: 50
 
   # Position Controllers ---------------------------------------
 
@@ -110,6 +110,7 @@ robotis_op3:
 
   head_pan_position:
     type: effort_controllers/JointPositionController
+    publish_rate: 50
     joint: head_pan
     pid: {p: 5.0, i: 0.0, d: 0.0}
 

@@ -16,10 +16,14 @@ find_package(catkin REQUIRED COMPONENTS
   control_msgs
   visp_bridge
   rosconsole
+  message_filters
+  cmake_modules
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(Eigen3 REQUIRED)
+find_package(cmake_modules REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -119,7 +123,8 @@ catkin_package(
   control_msgs
   visp_bridge
   rosconsole
-#  DEPENDS system_lib
+  message_filters
+  DEPENDS EIGEN3 Boost #system_lib
 )
 
 ###########
@@ -131,6 +136,8 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -166,6 +173,7 @@ add_executable(
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
 #############

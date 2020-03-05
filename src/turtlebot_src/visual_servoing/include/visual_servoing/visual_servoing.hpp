@@ -2,6 +2,7 @@
 #include "ros/console.h"
 #include "std_msgs/Int8.h"
 #include "sensor_msgs/Image.h"
+#include "sensor_msgs/JointState.h"
 #include "sensor_msgs/CameraInfo.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseStamped.h"
@@ -11,10 +12,11 @@
 #include "string.h"
 #include "tf/transform_datatypes.h"
 #include "math.h"
-#include <eigen3/Eigen/Dense>
+#include "eigen3/Eigen/Dense"
 #include "message_filters/subscriber.h"
 #include "message_filters/synchronizer.h"
 #include "message_filters/sync_policies/approximate_time.h"
+#include <message_filters/sync_policies/exact_time.h>
 #include "visp/vpImageIo.h"
 #include "visp_bridge/image.h"
 #include "visp_bridge/camera.h"
@@ -30,6 +32,8 @@
 #include "visp/vpFeatureBuilder.h"
 #include "visp/vpDot.h"
 #include "visp/vpDot2.h"
+#include "boost/bind.hpp"
+#include "boost/function.hpp"
 
 class HoloVisualServoing{
   private:
@@ -105,6 +109,7 @@ class NonHoloVisualServoing{
     ros::Subscriber Mobile_base_pose_sub_;  // Mobile Base Pose
     ros::Subscriber Head_pan_pose_sub_;  // Head pan pose
     ros::Subscriber Head_tilt_pose_sub_;  // Head tilt pose
+    ros::Subscriber Head_joint_sub_;  // Head joint angle/velocity
 
     std::string str_kinect;
     std::string str_depth_kinect;
@@ -131,12 +136,14 @@ class NonHoloVisualServoing{
     Eigen::MatrixXd camera_velocities;
     Eigen::MatrixXd robot_velocities;
     Eigen::MatrixXd out_command;
+    Eigen::MatrixXd lambda;
     vpHomogeneousMatrix cMo;
     geometry_msgs::Twist out_cmd_vel;
     std_msgs::Float64 out_pan_vel;
     std_msgs::Float64 out_tilt_vel;
-    double pan_pos;
-    double tilt_pos;
+    double pan_;
+    double tilt_;
+    double yaw_;
     vpPoint origin;
     vpFeaturePoint s_x, s_xd;
     vpFeatureDepth s_Z, s_Zd;
@@ -170,6 +177,9 @@ class NonHoloVisualServoing{
     double det;
     double delta_t, new_t, old_t;
     bool valid_time;
+    typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, sensor_msgs::JointState, geometry_msgs::PoseStamped> MySyncPolicy;
+    typedef message_filters::Synchronizer<MySyncPolicy> Sync;
+    boost::shared_ptr<Sync> sync;
 
   public:
     void init_vs();
@@ -180,7 +190,8 @@ class NonHoloVisualServoing{
     void mobileBasePoseCallback(const nav_msgs::OdometryConstPtr& msg); // callback to get the mobile base pose
     void headPanPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
     void headTiltPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
-    void callback(const geometry_msgs::PoseStampedConstPtr& msg1, const nav_msgs::OdometryConstPtr& msg2, const control_msgs::JointControllerStateConstPtr& msg3, const control_msgs::JointControllerStateConstPtr& msg4);
+    void callback(const nav_msgs::OdometryConstPtr& msg1, const sensor_msgs::JointStateConstPtr& msg2, const geometry_msgs::PoseStampedConstPtr& msg3);
+    void headJointCallback(const sensor_msgs::JointStateConstPtr& msg);
     NonHoloVisualServoing(const std::string s); // constructor
     ~NonHoloVisualServoing(); // deconstructor
 

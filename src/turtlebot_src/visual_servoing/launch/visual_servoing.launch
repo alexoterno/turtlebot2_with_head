@@ -5,6 +5,7 @@
     <param name="cmd_vel" value="cmd_vel_mux/input/navi"/>
     <remap from="head_tilt_position" to="/robotis_op3/head_tilt_position/command"/>
     <remap from="head_pan_position" to="/robotis_op3/head_pan_position/command"/>
+    <remap from="joint_states" to="/robotis_op3/joint_states"/>
     <!-- <remap from="/camera_info" to="/camera/rgb/camera_info"/> -->
     <!-- <remap from="/camera_info" to="/camera/depth/camera_info"/>  -->
     <remap from="/camera_info" to="/robotis_op3/camera/camera_info"/>
