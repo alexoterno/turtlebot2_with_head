@@ -63,10 +63,12 @@ void NonHoloVisualServoing::init_vs(){
   mu = 4;
   t_start_loop = 0.0;
   tinit = 0.0;
-  thresh = 0.02;
+  thresh = 0.05;
   high_ratio = 1 + thresh;
   low_ratio = 1 - thresh;
   max_linear_vel = 0.5;
+  min_vel_angular = 0.007;
+  min_vel_linear = 0.025;
   max_angular_vel = vpMath::rad(30);
   lambda_adapt.initStandard(3, 0.2, 40);
   // Eye in hand visual servoing with the following control law where camera velocities are computed
@@ -105,6 +107,7 @@ void NonHoloVisualServoing::init_vs(){
     robot_velocities = Eigen::MatrixXd::Zero(4,1);
     camera_velocities = Eigen::MatrixXd::Zero(4,1);
     lambda = Eigen::MatrixXd::Identity(4,4);
+    // lambda(1,1) = 0.9;
   }
   else if(vs_joints == "pan_tilt"){
     J_Robot_invert = Eigen::MatrixXd::Zero(5, 7); // moore pseudo invert
@@ -112,7 +115,9 @@ void NonHoloVisualServoing::init_vs(){
     robot_velocities = Eigen::MatrixXd::Zero(5,1);
     camera_velocities = Eigen::MatrixXd::Zero(7,1);
     lambda = Eigen::MatrixXd::Identity(5,5);
+    // lambda(2,2) = 0.2;
   }
+
   out_command = Eigen::MatrixXd::Zero(4,1);
   pan_ = 0;
   tilt_ = 0;
@@ -228,16 +233,16 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
     // std::cout << "s_Zd y: " << s_Zd.get_y()  << std::endl;
     // std::cout << "s_Z : " << s_Z.get_s()  << std::endl;
     // std::cout << "s_Zd : " << s_Zd.get_s()  << std::endl;
-    if ((Z <= depth * high_ratio) && (Z >= depth * low_ratio)){//IF1
-        while(1){ //Infinite Loop -- Here we have finished our task
-
-            //Send message
-            ROS_INFO("Im Done"); //Just to check
-            //Publishing to fit to the multi master process and send signal to next task
-            // pubTalker_.publish(msgDone);
-            exit(1);
-        }
-    }//END IF1
+    // if ((Z <= depth * high_ratio) && (Z >= depth * low_ratio)){//IF1
+    //     while(1){ //Infinite Loop -- Here we have finished our task
+    //
+    //         //Send message
+    //         ROS_INFO("I\'m Done"); //Just to check
+    //         //Publishing to fit to the multi master process and send signal to next task
+    //         // pubTalker_.publish(msgDone);
+    //         exit(1);
+    //     }
+    // }//END IF1
     if (Z <= 0)
       ROS_DEBUG("Z <= 0");
     if (!valid_pose || Z <= 0) {
@@ -278,11 +283,22 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
   //     vi = v;
   //   }
   // v = v - vi*exp(-mu*(t_start_loop - tinit)/1000.);
-  //
-  /*DO CONTROL*/
-  // std::cout << "J_Robot_invert: " << std::endl;
+  if (
+    (std::abs(v[0]) <= min_vel_linear * high_ratio) &&
+    (std::abs(v[2]) <= min_vel_angular * high_ratio) &&
+    (std::abs(v[3]) <= min_vel_angular * high_ratio) &&
+    (std::abs(v[4]) <= min_vel_angular * high_ratio)
 
-
+    // (std::abs(v[4]) <= min_vel_angular) && (std::abs(v[5]) <= min_vel_angular)
+  ){
+    std::cout << "velocity" << std::endl;
+    std::cout << v << std::endl;
+    //Send message
+    ROS_INFO("I\'m Done"); //Just to check
+    //Publishing to fit to the multi master process and send signal to next task
+    // pubTalker_.publish(msgDone);
+    exit(1);
+  }
   if(vs_joints == "pan"){
     // std::cout << "pan only" << std::endl;
     J_Robot (0, 0) = -1;
@@ -307,7 +323,7 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
 
     out_command(1) = delta_t*robot_velocities(0);
     out_command(2) = robot_velocities(1);
-    out_command(3) = pow((pow(robot_velocities(2), 2)+pow(robot_velocities(3), 2)),0.5);
+    out_command(3) = pow((pow(robot_velocities(2), 2)+pow(robot_velocities(3), 2)),0.5); //robot_velocities(2)*cos(yaw_)+robot_velocities(3)*sin(yaw_);
   }
   else if(vs_joints == "pan_tilt"){
     // std::cout << "pan_tilt" << std::endl;
@@ -350,10 +366,10 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
 
     robot_velocities = lambda*J_Robot_invert * camera_velocities;
 
-    // out_command(0) = robot_velocities(0);
-    // out_command(1) = robot_velocities(1);
-    // out_command(2) = robot_velocities(2);
-    // out_command(3) = pow((pow(robot_velocities(3), 2)+pow(robot_velocities(4), 2)),0.5);
+    out_command(0) = delta_t*robot_velocities(0);
+    out_command(1) = delta_t*robot_velocities(1);
+    out_command(2) = robot_velocities(2);
+    out_command(3) = pow((pow(robot_velocities(3), 2)+pow(robot_velocities(4), 2)),0.5);
   }
   std::cout << "J_Robot" << std::endl;
   std::cout << J_Robot << std::endl;
@@ -369,17 +385,20 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
   std::cout << out_command << std::endl;
   //////////////////////
   if (std::abs(out_command(3)) > max_linear_vel || std::abs(out_command(0)) > max_angular_vel || std::abs(out_command(1)) > max_angular_vel || std::abs(delta_t*out_command(2)) > max_angular_vel) {
-    ROS_INFO("Vel exceed max allowed");
     if(std::abs(out_command(3)) > max_linear_vel){
+      ROS_INFO("linear speed exceed max allowed");
       out_command(3) = max_linear_vel;
     }
     else if(std::abs(out_command(0)) > max_angular_vel){
+      ROS_INFO("Tilt angular spee exceed max allowed");
       out_command(0) = max_angular_vel;
     }
     else if(std::abs(out_command(1)) > max_angular_vel){
+      ROS_INFO("Pan angular speed exceed max allowed");
       out_command(1) = max_angular_vel;
     }
     else if(std::abs(delta_t*out_command(1)) > max_angular_vel){
+      ROS_INFO("Robot angular speed exceed max allowed");
       out_command(1) = max_angular_vel;
     }
   }
@@ -398,7 +417,9 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
 
   mobile_base_pub_.publish(out_cmd_vel);
   head_pan_pub_.publish(out_pan_vel);
-  head_tilt_pub_.publish(out_tilt_vel);
+  if(vs_joints == "pan_tilt"){
+    head_tilt_pub_.publish(out_tilt_vel);
+  }
   valid_pose_prev = valid_pose;
   valid_pose = false;
   std::cout << "out_cmd_vel : " << out_cmd_vel << std::endl;

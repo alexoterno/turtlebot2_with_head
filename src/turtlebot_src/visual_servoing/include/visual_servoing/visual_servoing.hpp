@@ -174,7 +174,7 @@ class NonHoloVisualServoing{
     const double L31 = 0.086;
     const double L32 = 0.000;
     const double L33 = 0.818;
-    double det;
+    double det, min_vel_linear, min_vel_angular;
     double delta_t, new_t, old_t;
     bool valid_time;
     typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, sensor_msgs::JointState, geometry_msgs::PoseStamped> MySyncPolicy;
