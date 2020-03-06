@@ -288,7 +288,6 @@ void NonHoloVisualServoing::poseCallback(const geometry_msgs::PoseStampedConstPt
     (std::abs(v[2]) <= min_vel_angular * high_ratio) &&
     (std::abs(v[3]) <= min_vel_angular * high_ratio) &&
     (std::abs(v[4]) <= min_vel_angular * high_ratio)
-
     // (std::abs(v[4]) <= min_vel_angular) && (std::abs(v[5]) <= min_vel_angular)
   ){
     std::cout << "velocity" << std::endl;
