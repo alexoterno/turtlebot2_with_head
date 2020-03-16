@@ -144,6 +144,7 @@ include_directories(
 add_library(
   ${PROJECT_NAME} src/holo_visual_servoing_node.cpp
   src/non_holo_visual_servoing_node.cpp
+  src/kinematics.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -158,6 +159,7 @@ add_executable(
   ${PROJECT_NAME}_node src/visual_servoing_main.cpp
   src/holo_visual_servoing_node.cpp
   src/non_holo_visual_servoing_node.cpp
+  src/kinematics.cpp
 )
 
 ## Rename C++ executable without prefix

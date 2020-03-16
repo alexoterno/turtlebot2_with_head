@@ -12,7 +12,7 @@
 -->
 
   <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false" output="screen" ns="/robotis_op3" args="joint_state_controller
-                                          head_pan_position
-                                          head_tilt_position">
+                                          head_pan_velocity
+                                          head_tilt_velocity">
   </node>
 </launch>
