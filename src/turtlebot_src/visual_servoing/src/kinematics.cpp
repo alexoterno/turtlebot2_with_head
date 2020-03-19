@@ -16,8 +16,62 @@ KinematicsNonHoloVS::KinematicsNonHoloVS(const std::string s){
   Mobile_base_pose_sub_ = nh_.subscribe("/odom", 1, &KinematicsNonHoloVS::mobileBasePoseCallback, this);
   Head_joint_sub_ = nh_.subscribe("joint_states", 1, &KinematicsNonHoloVS::headJointCallback, this);
   vs_joints = s;
-  ros::spin();
   init_vs();
+  printf("%s", msg);
+  printf("\rCurrent: speed %f\tturn %f | Awaiting command...\r", speed, turn);
+  while(true){
+    // Get the pressed key
+    key = KinematicsNonHoloVS::getch();
+    // If the key corresponds to a key in moveBindings
+    if (moveBindings.count(key) == 1)
+    {
+      // Grab the direction data
+      cam_vel_required(0) = moveBindings[key][0];
+      cam_vel_required(1) = moveBindings[key][1];
+      cam_vel_required(2) = moveBindings[key][2];
+      cam_vel_required(3) = moveBindings[key][3];
+      cam_vel_required(4) = moveBindings[key][4];
+      cam_vel_required(5) = moveBindings[key][5];
+      printf("\rCurrent: speed %f\tturn %f | Last command: %c   ", speed, turn, key);
+      // std::cout << "Camera velocities : " << cam_vel_required << std::endl;
+    }
+    // Otherwise if it corresponds to a key in speedBindings
+    else if (speedBindings.count(key) == 1)
+    {
+      // Grab the speed data
+      speed = speed * speedBindings[key][0];
+      turn = turn * speedBindings[key][1];
+      printf("\rCurrent: speed %f\tturn %f | Last command: %c   ", speed, turn, key);
+    }
+    // Otherwise, set the robot to stop
+    else
+    {
+      cam_vel_required(0) = 0;
+      cam_vel_required(1) = 0;
+      cam_vel_required(2) = 0;
+      cam_vel_required(3) = 0;
+      cam_vel_required(4) = 0;
+      cam_vel_required(5) = 0;
+      // If ctrl-C (^C) was pressed, terminate the program
+      if (key == '\x03')
+      {
+        printf("\n\n                 .     .\n              .  |\\-^-/|  .    \n             /| } O.=.O { |\\\n\n                 CH3EERS\n\n");
+        break;
+      }
+      printf("\rCurrent: speed %f\tturn %f | Invalid command! %c", speed, turn, key);
+    }
+    cam_vel_required(0) *= turn;
+    cam_vel_required(1) *= turn;
+    cam_vel_required(2) *= turn;
+    cam_vel_required(3) *= speed;
+    cam_vel_required(4) *= speed;
+    cam_vel_required(5) *= speed;
+    std::cout << std::endl << "Camera velocities required : " << std::endl;
+    std::cout << cam_vel_required << std::endl;
+    moveRobot(cam_vel_required);
+    ros::spinOnce();
+  }
+  // ros::spin();
 }
 
 //------------------------------------
@@ -33,10 +87,10 @@ void KinematicsNonHoloVS::init_vs(){
   thresh = 0.05;
   high_ratio = 1 + thresh;
   low_ratio = 1 - thresh;
-  max_linear_vel = 0.5;
+  max_linear_vel = 0.10;
   min_vel_angular = 0.007;
   min_vel_linear = 0.025;
-  max_angular_vel = vpMath::rad(30);
+  max_angular_vel = vpMath::rad(15);
 
   if(vs_joints == "pan"){
     J_Robot = Eigen::MatrixXd::Zero(4, 4);
@@ -56,8 +110,47 @@ void KinematicsNonHoloVS::init_vs(){
   }
 
   out_command = Eigen::MatrixXd::Zero(4,1);
+  cam_vel_required = Eigen::MatrixXd::Zero(6,1);
   pan_ = 0;
   tilt_ = 0;
+  speedBindings = {
+  {'q', {1.1, 1.1}},
+  {'z', {0.9, 0.9}},
+  {'w', {1.1, 1}},
+  {'x', {0.9, 1}},
+  {'e', {1, 1.1}},
+  {'c', {1, 0.9}}
+  };
+  // Map for movement keys
+  moveBindings = {
+    {'7', {0, 1, 0, 0, 0, 0}},
+    {'8', {0, -1, 0, 0, 0, 0}},
+    {'4', {1, 0, 0, 0, 0, 0}},
+    {'5', {-1, 0, 0, 0, 0, 0}},
+    {'1', {0, 0, 0, 0, 0, 1}},
+    {'2', {0, 0, 0, 0, 0, -1}},
+    {'6', {1, 1, 0, 0, 0, 0}},
+    {'3', {-1, -1, 0, 0, 0, 0}},
+    {'v', {0, 0, 0, 1, 0, 0}},
+    {'b', {0, 0, 0, -1, 0, 0}},
+    {'n', {0, 0, 0, 0, 0, 1}},
+    {'m', {0, 0, 0, 0, 0, -1}}
+  };
+  msg = R"(
+    7/8 : increase/decrease wy
+    4/5 : increase/decrease wx
+    1/2 : increase/decrease vz
+    6/3 : increase/decrease wy and wx
+    v/b : increase/decrease vx
+    n/m : increase/decrease vy
+    q/z : increase/decrease max speeds by 10%
+    w/x : increase/decrease only linear speed by 10%
+    e/c : increase/decrease only angular speed by 10%
+    CTRL-C to quit
+  )";
+  speed = 0.1; // Linear velocity (m/s)
+  turn = 0.25; // Angular velocity (rad/s)
+  key = ' ';
   std::cout << "visual_servoing with : " << vs_joints << std::endl;
   ROS_INFO("Initializing visual variables ended");
 }
@@ -102,14 +195,42 @@ void KinematicsNonHoloVS::headJointCallback(const sensor_msgs::JointStateConstPt
 //   ROS_INFO("tilt angle: [%f]", head_tilt_angle);
 // }
 
+//---------------------------------
+// For non-blocking keyboard inputs
+//----------------------------------------
+int KinematicsNonHoloVS::getch(void)
+{
+  int ch;
+  struct termios oldt;
+  struct termios newt;
+
+  // Store old settings, and copy to new settings
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+
+  // Make required changes and apply the settings
+  newt.c_lflag &= ~(ICANON | ECHO);
+  newt.c_iflag |= IGNBRK;
+  newt.c_iflag &= ~(INLCR | ICRNL | IXON | IXOFF);
+  newt.c_lflag &= ~(ICANON | ECHO | ECHOK | ECHOE | ECHONL | ISIG | IEXTEN);
+  newt.c_cc[VMIN] = 1;
+  newt.c_cc[VTIME] = 0;
+  tcsetattr(fileno(stdin), TCSANOW, &newt);
+
+  // Get the current character
+  ch = getchar();
+
+  // Reapply old settings
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+  return ch;
+}
+
+
 //------------------------------------
 // callback to get current targe pose from visp_auto_tracker
 //------------------------------------
-void KinematicsNonHoloVS::poseCallback(const geometry_msgs::PoseStampedConstPtr& msg){
-    delta_t = (new_t - old_t)/1e9;
-    old_t = new_t;
-    std::cout << "Hz : " << 1/delta_t << std::endl;
-    std::cout << "delta_t : " << delta_t << std::endl;
+void KinematicsNonHoloVS::moveRobot(Eigen::MatrixXd cam_vel){
     pan_ = head_pan_angle;
     tilt_ = head_tilt_angle;
     yaw_ = yaw;
@@ -120,21 +241,21 @@ void KinematicsNonHoloVS::poseCallback(const geometry_msgs::PoseStampedConstPtr&
     std::cout << "cos(yaw_) : " << cos(yaw_) << std::endl;
     std::cout << "sin(yaw_) : " << sin(yaw_) << std::endl;
 
-    if (
-      (std::abs(v[0]) <= min_vel_linear * high_ratio) &&
-      (std::abs(v[2]) <= min_vel_angular * high_ratio) &&
-      (std::abs(v[3]) <= min_vel_angular * high_ratio) &&
-      (std::abs(v[4]) <= min_vel_angular * high_ratio)
+    // if (
+      // (std::abs(v[0]) <= min_vel_linear * high_ratio) &&
+      // (std::abs(v[2]) <= min_vel_angular * high_ratio) &&
+      // (std::abs(v[3]) <= min_vel_angular * high_ratio) &&
+      // (std::abs(v[4]) <= min_vel_angular * high_ratio)
       // (std::abs(v[4]) <= min_vel_angular) && (std::abs(v[5]) <= min_vel_angular)
-    ){
-      std::cout << "velocity" << std::endl;
-      std::cout << v << std::endl;
+    // ){
+      // std::cout << "velocity" << std::endl;
+      // std::cout << v << std::endl;
       //Send message
-      ROS_INFO("I\'m Done"); //Just to check
+      // ROS_INFO("I\'m Done"); //Just to check
       //Publishing to fit to the multi master process and send signal to next task
       // pubTalker_.publish(msgDone);
-      exit(1);
-    }
+      // exit(1);
+    // }
     if(vs_joints == "pan"){
       // std::cout << "pan only" << std::endl;
       J_Robot (0, 0) = -1;
@@ -151,9 +272,9 @@ void KinematicsNonHoloVS::poseCallback(const geometry_msgs::PoseStampedConstPtr&
       J_Robot (3, 3) = -cos(yaw_);
       J_Robot_invert = J_Robot.inverse();
 
-      camera_velocities (0) = v[4];
-      camera_velocities (1) = v[0];
-      camera_velocities (2) = v[2];
+      camera_velocities (0) = cam_vel_required(1);
+      camera_velocities (1) = cam_vel_required(3);
+      camera_velocities (2) = cam_vel_required(5);
 
       robot_velocities = lambda*J_Robot_invert * camera_velocities;
 
@@ -193,19 +314,21 @@ void KinematicsNonHoloVS::poseCallback(const geometry_msgs::PoseStampedConstPtr&
 
       J_Robot_invert = (J_Robot.transpose()*J_Robot).inverse()*J_Robot.transpose(); // Moore pseudo inverse
 
-      camera_velocities (0) = v[3];
-      camera_velocities (1) = v[4];
-      camera_velocities (2) = v[5];
-      camera_velocities (3) = v[0];
-      camera_velocities (4) = v[1];
-      camera_velocities (5) = v[2];
+      camera_velocities(0) = cam_vel_required(0);
+      camera_velocities(1) = cam_vel_required(1);
+      camera_velocities(2) = cam_vel_required(2);
+      camera_velocities(3) = cam_vel_required(3);
+      camera_velocities(4) = cam_vel_required(4);
+      camera_velocities(5) = cam_vel_required(5);
+
+
 
       robot_velocities = lambda*J_Robot_invert * camera_velocities;
 
       out_command(0) = robot_velocities(0);
       out_command(1) = robot_velocities(1);
       out_command(2) = robot_velocities(2);
-      out_command(3) = pow((pow(robot_velocities(3), 2)+pow(robot_velocities(4), 2)),0.5);
+      out_command(3) = robot_velocities(3)*cos(yaw_)+robot_velocities(4)*sin(yaw_); //pow((pow(robot_velocities(3), 2)+pow(robot_velocities(4), 2)),0.5);
     }
     std::cout << "J_Robot" << std::endl;
     std::cout << J_Robot << std::endl;
@@ -219,27 +342,26 @@ void KinematicsNonHoloVS::poseCallback(const geometry_msgs::PoseStampedConstPtr&
     std::cout << camera_velocities << std::endl;
     std::cout << "out_command" << std::endl;
     std::cout << out_command << std::endl;
-    //////////////////////
 
     if(std::abs(out_command(3)) > max_linear_vel){
       ROS_INFO("linear speed exceed max allowed");
-      out_command(3) = max_linear_vel;
+      out_command(3) = out_command(3)/(std::abs(out_command(3)))*max_linear_vel; // sign * max_linear_vel
     }
-    else if(std::abs(out_command(0)) > max_angular_vel){
+    if(std::abs(out_command(0)) > max_angular_vel){
       ROS_INFO("Tilt angular spee exceed max allowed");
-      out_command(0) = max_angular_vel;
+      out_command(0) = out_command(0)/(std::abs(out_command(0)))*max_angular_vel;
     }
-    else if(std::abs(out_command(1)) > max_angular_vel){
+    if(std::abs(out_command(1)) > max_angular_vel){
       ROS_INFO("Pan angular speed exceed max allowed");
-      out_command(1) = max_angular_vel;
+      out_command(1) = out_command(1)/(std::abs(out_command(1)))*max_angular_vel;
     }
-    else if(std::abs(delta_t*out_command(2)) > max_angular_vel){
+    if(std::abs(out_command(2)) > max_angular_vel){
       ROS_INFO("Robot angular speed exceed max allowed");
-      out_command(2) = max_angular_vel;
+      out_command(2) = out_command(2)/(std::abs(out_command(2)))*max_angular_vel;
     }
 
-    std::cout << "velocity" << std::endl;
-    std::cout << v << std::endl;
+    // std::cout << "velocity" << std::endl;
+    // std::cout << v << std::endl;
     out_cmd_vel.linear.x = out_command(3);
     out_cmd_vel.linear.y = 0;
     out_cmd_vel.linear.z = 0;

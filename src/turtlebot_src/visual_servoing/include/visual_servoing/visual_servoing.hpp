@@ -34,6 +34,12 @@
 #include "visp/vpDot2.h"
 #include "boost/bind.hpp"
 #include "boost/function.hpp"
+#include "stdio.h"
+#include "unistd.h"
+#include "termios.h"
+
+#include <map>
+
 
 class HoloVisualServoing{
   private:
@@ -240,6 +246,7 @@ class KinematicsNonHoloVS{
     Eigen::MatrixXd J_Robot_invert;
     Eigen::MatrixXd J_Robot;
     Eigen::MatrixXd camera_velocities;
+    Eigen::MatrixXd cam_vel_required;
     Eigen::MatrixXd robot_velocities;
     Eigen::MatrixXd out_command;
     Eigen::MatrixXd lambda;
@@ -272,7 +279,7 @@ class KinematicsNonHoloVS{
     double x_pan_robot;
     std::string vs_joints;
     const double L11 = 0.019;
-    const double L12 = 0.050; // y_camera is downward
+    const double L12 = -0.050; // y_camera is downward
     const double L13 = 0.014;
     const double L21 = 0.029;
     const double L22 = 0.010;
@@ -286,6 +293,15 @@ class KinematicsNonHoloVS{
     // typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, sensor_msgs::JointState, geometry_msgs::PoseStamped> MySyncPolicy;
     // typedef message_filters::Synchronizer<MySyncPolicy> Sync;
     // boost::shared_ptr<Sync> sync;
+    // Map for speed keys
+    std::map<char, std::vector<float>> moveBindings;
+    std::map<char, std::vector<float>> speedBindings;
+    const char* msg;
+    float speed; // Linear velocity (m/s)
+    float turn; // Angular velocity (rad/s)
+    char key;
+
+
 
   public:
     void init_vs();
@@ -298,6 +314,8 @@ class KinematicsNonHoloVS{
     // void headTiltPoseCallback(const control_msgs::JointControllerStateConstPtr& msg); // callback to get the head pan pose
     // void callback(const nav_msgs::OdometryConstPtr& msg1, const sensor_msgs::JointStateConstPtr& msg2, const geometry_msgs::PoseStampedConstPtr& msg3);
     void headJointCallback(const sensor_msgs::JointStateConstPtr& msg);
+    int getch(void);
+    void moveRobot(Eigen::MatrixXd cam_vel);
     KinematicsNonHoloVS(const std::string s); // constructor
     ~KinematicsNonHoloVS(); // deconstructor
 
