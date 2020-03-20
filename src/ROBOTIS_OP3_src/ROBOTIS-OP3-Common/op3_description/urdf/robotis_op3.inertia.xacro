@@ -177,16 +177,16 @@
   <xacro:macro name="insert_inertia_head_pan_link">
     <origin xyz="0.00233 0.00000 0.00823" />
     <mass value="0.01176"/>
-    <inertia ixx="0.0001" ixy="0.0" ixz="-0.000"
-             iyy="0.0001" iyz="0.0"
-             izz="0.0001" />
+    <inertia ixx="0.001" ixy="0.0" ixz="-0.001"
+             iyy="0.001" iyz="0.0"
+             izz="0.001" />
   </xacro:macro>
 
   <!-- head pitch joint -->
   <xacro:macro name="insert_inertia_head_tilt_link">
     <origin xyz="0.00230 -0.01863 0.02770" />
     <mass value="0.13631"/>
-    <inertia ixx="0.001" ixy="0.000" ixz="-0.000"
+    <inertia ixx="0.001" ixy="0.000" ixz="-0.001"
              iyy="0.001" iyz="0.000"
              izz="0.001" />
   </xacro:macro>

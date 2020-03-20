@@ -30,7 +30,8 @@ int main(int argc, char **argv)
   // std::cout << "visual_servoing with : " << vs_joints << std::endl;
   ROS_INFO("Starting IBVS");
   ros::init(argc, argv, "visual_servoing_node");
-  NonHoloVisualServoing n_h_vsObject(vs_joints);
+  // NonHoloVisualServoing n_h_vsObject(vs_joints);
+  KinematicsNonHoloVS k_n_h_vsObject(vs_joints);
   // HoloVisualServoing vsObject;
   // ros::NodeHandle nh_; // node handle
   // typedef message_filters::sync_policies::ApproximateTime<control_msgs::JointControllerState, control_msgs::JointControllerState> MySyncPolicy;

@@ -1,1 +1,0 @@
-JointOffsetPositionData[] present_data_array

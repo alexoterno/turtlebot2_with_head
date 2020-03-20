@@ -48,11 +48,11 @@ echo WORLD = ${WORLD}
 echo NB_SIM = ${NB_SIM}
 for i in $(seq 1 1 $((${NB_SIM}-1)))
 do
-  export ROS_MASTER_URI=http://localhost:$(($ros_localhost+$i-1))
-  export  GAZEBO_MASTER_URI=http://localhost:$(($gazebo_localhost+$i-1))
-  roslaunch launch/my_turtlebot_simulator.launch robot:=_extended gui:=${GUI} head_controller:=true pause:=${PAUSE} world_file:=/home/alex/github/Turtlebot_Project/src/turtlebot_src/turtlebot_simulator/turtlebot_gazebo/worlds/${WORLD}.world &
+  export ROS_MASTER_URI=http://ursa:$(($ros_localhost+$i-1))
+  export  GAZEBO_MASTER_URI=http://ursa:$(($gazebo_localhost+$i-1))
+  roslaunch launch/my_turtlebot_simulator.launch robot:=_extended gui:=${GUI} head_controller:=true pause:=${PAUSE} world_file:=/local_scratch/aauterna/git/src/turtlebot_src/turtlebot_simulator/turtlebot_gazebo/worlds/${WORLD}.world &
   sleep 20s
 done
-export ROS_MASTER_URI=http://localhost:$(($ros_localhost+${NB_SIM}-1))
-export GAZEBO_MASTER_URI=http://localhost:$(($gazebo_localhost+${NB_SIM}-1))
-roslaunch launch/my_turtlebot_simulator.launch robot:=_extended gui:=${GUI} head_controller:=true pause:=${PAUSE} world_file:=/home/alex/github/Turtlebot_Project/src/turtlebot_src/turtlebot_simulator/turtlebot_gazebo/worlds/${WORLD}.world
+export ROS_MASTER_URI=http://ursa:$(($ros_localhost+${NB_SIM}-1))
+export GAZEBO_MASTER_URI=http://ursa:$(($gazebo_localhost+${NB_SIM}-1))
+roslaunch launch/my_turtlebot_simulator.launch robot:=_extended gui:=${GUI} head_controller:=true pause:=${PAUSE} world_file:=/local_scratch/aauterna/git/src/turtlebot_src/turtlebot_simulator/turtlebot_gazebo/worlds/${WORLD}.world

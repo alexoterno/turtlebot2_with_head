@@ -93,6 +93,15 @@ Visual Servoing Project :
   https://github.com/cefisalam/MSc_Robotics_Project
   https://github.com/babaksit/aras_visual_servo
   https://github.com/anissalintang/vs_turtlebot_project
+  https://github.com/PamirGhimire/visualServoing_ROSProject
+
+ROS Control :
+  https://www.youtube.com/watch?v=Bb5RZ1PWPXI
+  https://www.youtube.com/playlist?list=PLK0b4e05Lnza8a1SNc1nldOJ9AN0bU3bg
+
+Maple :
+   https://files.inria.fr/loglic/Maple/Maple2019/
+   https://www.maplesoft.com/support/install/2019/Maple/Install.html
 
   roslaunch my_turtlebot_simulator.launch robot:=_extended gui:=false head_controller:=true pause:=false world_file:=/local_scratch/aauterna/git/src/turtlebot_src/turtlebot_simulator/turtlebot_gazebo/worlds/my_turtlebot_world.world
   roslaunch turtlebot_teleop keyboard_teleop.launch
