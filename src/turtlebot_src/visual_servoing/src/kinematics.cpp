@@ -4,7 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //------------------------------------
-// constructor:
+// constructor :
 //------------------------------------
 KinematicsNonHoloVS::KinematicsNonHoloVS(const std::string s){
   ROS_INFO("Non Holonomic Visual Servoing Algorithm");
