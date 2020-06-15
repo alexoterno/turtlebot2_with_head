@@ -111,21 +111,21 @@ robotis_op3:
   head_pan_position:
     type: effort_controllers/JointPositionController
     joint: head_pan
-    pid: {p: 5.0, i: 0.0, d: 0.0}
+    pid: {p: 50.0, i: 1.0, d: 10.0}
 
 
   head_tilt_position:
     type: effort_controllers/JointPositionController
     joint: head_tilt
-    pid: {p: 5.0, i: 0.0, d: 0.0}
+    pid: {p: 50.0, i: 1.0, d: 10.0}
 
   head_pan_velocity:
     type: effort_controllers/JointVelocityController
     joint: head_pan
-    pid: {p: 5.0, i: 0.0, d: 0.0}
+    pid: {p: 50.0, i: 1.0, d: 10.0}
 
 
   head_tilt_velocity:
     type: effort_controllers/JointVelocityController
     joint: head_tilt
-    pid: {p: 5.0, i: 0.0, d: 0.0}
+    pid: {p: 50.0, i: 1.0, d: 10.0}
