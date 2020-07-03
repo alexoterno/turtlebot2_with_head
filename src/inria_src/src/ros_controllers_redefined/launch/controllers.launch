@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<launch>
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find ros_controllers_redefined)/config/controllers.yaml" command="load"/>
+  <!-- <rosparam command="load" file="$(find ros_controllers_redefined)/config/pids.yaml"/> -->
+
+
+  <!-- load the controllers -->
+  <!--
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+  output="screen" ns="/robotis_op3" args="joint_state_controller
+                                          head_pan_position
+                                          head_pan_velocity
+                                          head_tilt_position
+                                          head_tilt_velocity
+                                          wheel_left_joint_vel
+                                          wheel_right_joint_vel
+                                          " />
+  -->
+
+  <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false"
+    output="screen" ns="/robotis_op3" args="joint_state_controller
+                          head_pan_position
+                          head_tilt_position
+                          ">
+  </node>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="/robotis_op3">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+  <!-- <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false"
+    output="screen" ns="/kobuki" args="
+                                       wheel_left_joint_vel
+                                       wheel_right_joint_vel
+                                       ">
+  </node> -->
+</launch>
