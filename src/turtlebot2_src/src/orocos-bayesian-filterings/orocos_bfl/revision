@@ -1,0 +1,1 @@
+svn info /local_scratch/aauterna/ros_projects/turtlebot2_ws/src/orocos-bayesian-filtering/orocos_bfl | grep '^Revision' | sed -e 's/Revision: *//'
