@@ -24,6 +24,9 @@
                           head_tilt_position
                           ">
   </node>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="/robotis_op3">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
   <!-- <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false"
     output="screen" ns="/kobuki" args="
                                        wheel_left_joint_vel
