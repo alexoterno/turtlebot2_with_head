@@ -9,7 +9,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/alexoterno/turtlebot2_with_head">
-    <img src="images/turtlebot2_ari_head.png" alt="Logo" width="160" height="160">
+    <img src="images/turtlebot2_ari_head.png" alt="Logo" width="160" height="250">
   </a>
 
   <h3 align="center">turtlebot2_with_head</h3>
@@ -53,7 +53,7 @@
 
 #### inria_src/src
 
-#### turtlebot2_src
+#### turtlebot2_src/src
 
 
 <!-- GETTING STARTED -->
