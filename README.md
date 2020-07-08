@@ -32,8 +32,8 @@
 ## Table of Contents
 * [About the Project](#about-the-project)
   * [Package Description](#package-description)
-    * [head_src/src](#head_src/src)
-    * [inria_src/src](#inria_src/src)
+    * [head_src](#head_src)
+    * [inria_src](#inria_src)
     * [turtlebot2_src](#turtlebot2_src)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
