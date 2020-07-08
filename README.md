@@ -51,13 +51,13 @@ A plate on the top of the basic [turtlebot2](http://wiki.ros.org/Robots/TurtleBo
 
 ### Package Description
 
-#### head_src/src
+#### head_src /src
 This package contains the packages for the ARI Head and the [robotis_op3](http://wiki.ros.org/robotis_op3) head (now, it's deprecated).
 Regarding the ARI head packages, the description files can be found in the [ari_description](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/ari_description) package. The [controller_manager](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/controller_manager) and [controller_manager_msgs](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/controller_manager_msgs) packages are used to control the head.
 
-#### inria_src/src
+#### inria_src /src
 
-#### turtlebot2_src/src
+#### turtlebot2_src /src
 
 
 <!-- GETTING STARTED -->
