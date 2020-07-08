@@ -30,7 +30,20 @@
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
-[[_TOC_]]
+* [About the Project](#about-the-project)
+  * [Package Description](#package-description)
+    * [head_src/src](#head_src/src)
+    * [inria_src/src](#inria_src/src)
+    * [turtlebot2_src](#turtlebot2_src)
+* [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+* [Usage](#usage)
+* [Roadmap](#roadmap)
+* [Contributing](#contributing)
+* [License](#license)
+* [Contact](#contact)
+* [Acknowledgements](#acknowledgements)
 
 ## About the Project
 
