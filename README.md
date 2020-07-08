@@ -15,7 +15,7 @@
   <h3 align="center">turtlebot2_with_head</h3>
 
   <div align="center">
-    This repository contains the turtlebot2 robot on ROS Melodic with the [ARI Head](http://wiki.ros.org/Robots/ARI/Tutorials)
+    This repository contains the turtlebot2 robot on ROS Melodic with the ARI Head
     <br />
     <a href="https://github.com/alexoterno/turtlebot2_with_head"><strong>Explore the docs »</strong></a>
     <br />
@@ -32,9 +32,9 @@
 ## Table of Contents
 * [About the Project](#about-the-project)
   * [Package Description](#package-description)
-    * [head_src](#head_src)
-    * [inria_src](#inria_src)
-    * [turtlebot2_src](#turtlebot2_src)
+    * [head_src](#head)
+    * [inria_src](#inria)
+    * [turtlebot2_src](#turtlebot2)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
@@ -46,10 +46,14 @@
 * [Acknowledgements](#acknowledgements)
 
 ## About the Project
+This repository contains the turtlebot2 robot for ROS Melodic version of ROS with the [ARI head](http://wiki.ros.org/Robots/ARI/Tutorials).
+A plate on the top of the basic [turtlebot2](http://wiki.ros.org/Robots/TurtleBot) was added (the third one) to increase the height of the robot. On top of this, the head of the ARI robot was put.
 
 ### Package Description
 
 #### head_src/src
+This package contains the packages for the ARI Head and the [robotis_op3](http://wiki.ros.org/robotis_op3) head (now, it's deprecated).
+Regarding the ARI head packages, the description files can be found in the [ari_description](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/ari_description) package. The [controller_manager](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/controller_manager) and [controller_manager_msgs](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/controller_manager_msgs) packages are used to control the head.
 
 #### inria_src/src
 
