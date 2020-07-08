@@ -31,6 +31,7 @@ import rospy
 
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 import sys, select, termios, tty, math
 
@@ -85,6 +86,14 @@ speedBindings={
 
 pan_limit = math.pi/2
 tilt_limit = math.pi/2
+head_pos = JointTrajectory()
+p = JointTrajectoryPoint()
+head_pos.header.frame_id = "head"
+head_pos.joint_names = [None]*2
+head_pos.joint_names[0] = "head_1_joint"  # pan
+head_pos.joint_names[1] = "head_2_joint"  # tilt
+p.positions = [None] * 2
+head_pos.points = [None]
 
 def getKey():
     tty.setraw(sys.stdin.fileno())
@@ -111,6 +120,7 @@ if __name__=="__main__":
     pub_pan = rospy.Publisher('head_pan_position', Float64, queue_size=5)
     pub_tilt = rospy.Publisher('head_tilt_position', Float64, queue_size=5)
     pub_turtlebot = rospy.Publisher('cmd_vel', Twist, queue_size=5)
+    _head_pos_pub = rospy.Publisher('/head_controller/command', JointTrajectory, queue_size=2)
 
     pan_target = 0
     tilt_target = 0
@@ -134,27 +144,27 @@ if __name__=="__main__":
             if key == '7' and pan_target <= pan_limit:
                 pan_target += 0.02
                 pan.data = pan_target
-                pub_pan.publish(pan)
+                # pub_pan.publish(pan)
             elif key == '4' and tilt_target <= tilt_limit :
                 tilt_target += 0.02
                 tilt.data = tilt_target
-                pub_tilt.publish(tilt)
+                # pub_tilt.publish(tilt)
             elif key == '8' and pan_target >= -pan_limit:
                 pan_target -= 0.02
                 pan.data = pan_target
-                pub_pan.publish(pan)
+                # pub_pan.publish(pan)
             elif key == '5' and tilt_target >= -tilt_limit:
                 tilt_target -= 0.02
                 tilt.data = tilt_target
-                pub_tilt.publish(tilt)
+                # pub_tilt.publish(tilt)
             elif key == '9':
                 pan_target = 0
                 pan.data = pan_target
-                pub_pan.publish(pan)
+                # pub_pan.publish(pan)
             elif key == '6':
                 tilt_target = 0
                 tilt.data = tilt_target
-                pub_tilt.publish(tilt)
+                # pub_tilt.publish(tilt)
 
             elif key in moveBindings.keys():
                 x = moveBindings[key][0]
@@ -201,6 +211,12 @@ if __name__=="__main__":
             twist.linear.x = control_speed; twist.linear.y = 0; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = control_turn
             pub_turtlebot.publish(twist)
+            head_pos.header.stamp = rospy.Time.now() + rospy.Duration.from_sec(0.1)
+            p.positions[0] = pan_target
+            p.positions[1] = tilt_target
+            head_pos.points[0] = p
+            head_pos.points[0].time_from_start = rospy.Duration.from_sec(0.01)
+            _head_pos_pub.publish(head_pos)
 
     except Exception as e:
         print(e)

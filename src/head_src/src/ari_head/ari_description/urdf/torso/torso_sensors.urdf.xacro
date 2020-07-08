@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<!--
+
+  Copyright (c) 2019, PAL Robotics, S.L.
+  All rights reserved.
+
+  This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to
+  Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+-->
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!--File includes-->
+  <xacro:include filename="$(find ari_description)/urdf/deg_to_rad.xacro" />
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />
+  <xacro:include filename="$(find realsense2_description)/urdf/_t265.urdf.xacro" />
+  <xacro:include filename="$(find ari_description)/urdf/sensors/microphone.urdf.xacro"/>
+
+  <!--Constant parameters-->
+  <xacro:property name="torso_front_camera_position_x" value="-0.11249" />
+  <xacro:property name="torso_front_camera_position_y" value="0.0" />
+  <xacro:property name="torso_front_camera_position_z" value="0.97052" />
+  <xacro:property name="torso_front_camera_orientation_r" value="0.0" />
+  <xacro:property name="torso_front_camera_orientation_p" value="${42.5 * deg_to_rad}" />
+  <xacro:property name="torso_front_camera_orientation_y" value="0.0" />
+  <xacro:property name="torso_back_camera_position_x" value="-0.3275" />
+  <xacro:property name="torso_back_camera_position_y" value="0.009" />
+  <xacro:property name="torso_back_camera_position_z" value="1.0337" />
+  <xacro:property name="torso_back_camera_orientation_r" value="0.0" />
+  <xacro:property name="torso_back_camera_orientation_p" value="${15 * deg_to_rad}" />
+  <xacro:property name="torso_back_camera_orientation_y" value="${180 * deg_to_rad}" />
+
+  <xacro:macro name="torso_sensors" params="name parent">
+
+  <!-- Torso sensors -->
+  <!-- Torso front camera -->
+  <sensor_d435 parent="${parent}" name="${name}_front_camera" topics_ns="${name}_front_camera">
+    <origin xyz="${torso_front_camera_position_x} ${torso_front_camera_position_y} ${torso_front_camera_position_z}"
+            rpy="${torso_front_camera_orientation_r} ${torso_front_camera_orientation_p} ${torso_front_camera_orientation_y}"/>
+  </sensor_d435>
+
+  <!-- Torso back camera -->
+  <sensor_t265 parent="${parent}" name="${name}_back_camera" topics_ns="${name}_back_camera">
+    <origin xyz="${torso_back_camera_position_x} ${torso_back_camera_position_y} ${torso_back_camera_position_z}"
+            rpy="${torso_back_camera_orientation_r} ${torso_back_camera_orientation_p} ${torso_back_camera_orientation_y}"/>
+  </sensor_t265>
+
+  <!-- Microphones -->
+  <xacro:microphone name="${name}_mic_front" parent="${parent}">
+    <origin xyz="-0.12173 -3.5497E-05 0.80332" rpy="${80 * deg_to_rad} 0 ${90 * deg_to_rad}"/>
+  </xacro:microphone>
+
+ </xacro:macro>
+</robot>

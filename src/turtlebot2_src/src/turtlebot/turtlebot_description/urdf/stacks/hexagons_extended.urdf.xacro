@@ -4,13 +4,16 @@
  -->
 <robot name="stack_hexagons" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find turtlebot_description)/urdf/common_properties.urdf.xacro"/>
-  <xacro:include filename="$(find op3_description)/urdf/robotis_op3.visuals.xacro" />
-  <xacro:include filename="$(find op3_description)/urdf/robotis_op3.inertia.xacro" />
+  <!-- <xacro:include filename="$(find op3_description)/urdf/robotis_op3.visuals.xacro" /> -->
+  <!-- <xacro:include filename="$(find op3_description)/urdf/robotis_op3.inertia.xacro" /> -->
 
-  <xacro:include filename="$(find op3_description)/urdf/robotis_op3.structure.head.xacro" />
+  <!-- <xacro:include filename="$(find op3_description)/urdf/robotis_op3.structure.head.xacro" /> -->
 
-  <xacro:include filename="$(find op3_description)/urdf/robotis_op3.gazebo.xacro" />
-  <xacro:include filename="$(find op3_description)/urdf/robotis_op3.transmissions.xacro" />
+  <!-- <xacro:include filename="$(find op3_description)/urdf/robotis_op3.gazebo.xacro" /> -->
+  <!-- <xacro:include filename="$(find op3_description)/urdf/robotis_op3.transmissions.xacro" /> -->
+  <xacro:include filename="$(find ari_description)/urdf/head/head.urdf.xacro" />
+  <!-- Generic simulator_gazebo plugins -->
+  <!-- <xacro:include filename="$(find ari_description)/gazebo/gazebo.urdf.xacro" /> -->
 
 
   <!-- Xacro properties -->
@@ -304,6 +307,8 @@
       </inertial>
     </link>
 
-    <xacro:robotis_op3_head parent="plate_top_3rd_link" />
+    <!-- <xacro:robotis_op3_head parent="plate_top_3rd_link" /> -->
+    <xacro:property name="head_link_name"          value="head_2_link"/>
+    <xacro:head name="head" parent="${parent}"/>
   </xacro:macro>
 </robot>

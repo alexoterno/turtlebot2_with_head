@@ -2,6 +2,9 @@
 <launch>
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(find ros_controllers_redefined)/config/controllers.yaml" command="load"/>
+  <rosparam command="load" file="$(find ari_description)/config/joint_trajectory_controllers.yaml" />
+  <rosparam command="load" file="$(find ari_description)/config/pids.yaml" />
+  <!-- <rosparam command="load" file="$(find ari_description)/config/joint_state_controller.yaml" /> -->
   <!-- <rosparam command="load" file="$(find ros_controllers_redefined)/config/pids.yaml"/> -->
 
 
@@ -18,15 +21,26 @@
                                           " />
   -->
 
-  <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false"
+  <!-- <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false"
     output="screen" ns="/robotis_op3" args="joint_state_controller
                           head_pan_position
                           head_tilt_position
-                          ">
-  </node>
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="/robotis_op3">
+                          "> -->
+  <arg name="controller_list"
+       value="head_controller
+              "/>
+
+  <!-- Controllers that come up started -->
+  <node name="default_controllers_spawner"
+        pkg="controller_manager" type="spawner" output="screen"
+        args="--timeout 20
+             $(arg controller_list) " />
+  <!-- <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="/ari_head">
+   <param name="publish_frequency" type="double" value="30.0" />
+  </node> -->
+  <!-- <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="/robotis_op3">
     <param name="publish_frequency" type="double" value="30.0" />
-  </node>
+  </node> -->
   <!-- <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false"
     output="screen" ns="/kobuki" args="
                                        wheel_left_joint_vel

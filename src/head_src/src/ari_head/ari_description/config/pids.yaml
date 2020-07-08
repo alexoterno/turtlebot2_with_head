@@ -1,0 +1,3 @@
+/gazebo_ros_control/pid_gains:
+  head_1_joint: {p: 100,  d: 0, i: 10, i_clamp: 1.5}
+  head_2_joint: {p: 100,  d: 0, i: 10, i_clamp: 1.5}
