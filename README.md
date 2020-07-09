@@ -56,25 +56,53 @@ This package contains the packages for the ARI Head and the [robotis_op3](http:/
 Regarding the ARI head packages, the description files can be found in the [ari_description](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/ari_description) package. The [controller_manager](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/controller_manager) and [controller_manager_msgs](https://github.com/alexoterno/turtlebot2_with_head/tree/master/src/head_src/src/ari_head/controller_manager_msgs) packages are used to control the head.
 
 #### inria_src
+The custom_launchers, ros_controllers_redefined and visual_servoing packages are in this source folder. There are used to spawn the robot and launch only the sensors and controllers that are needed for visual navigation tasks. For the moment, there ares only the head controller (pan/tilt) and the mobile base controller.
+The visual_servoing package is a visual servoing implementation based on the [Visual Servoing Platform](https://visp-doc.inria.fr/doxygen/visp-daily/). The [visp](https://visp.inria.fr/download/) librairy need to be installed on your computer.
 
 #### turtlebot2_src
-
+This source folder contains the basic [Turtlebot2](https://github.com/gaunthan/Turtlebot2-On-Melodic) sources that can be run on ROS Melodic.
 
 <!-- GETTING STARTED -->
 
 ## Getting Started
-To run some packages of this repository project on the two proposed robot simulation, follow these simple steps.
+To run the Turtlebot2-with-head simulation, follow these simple steps.
 
 ### Prerequisites
-In order to run the learning, control and interactions packages with the robot simulation on your machine and given the Ubuntu, ROS and Gazebo versions constraints, the roll-out is split in two. Waiting we solve the container network issue with singularity compose, the simulation will be run on your local machine and this repository project will be run on a container with [singularity](https://sylabs.io/guides/3.5/user-guide/). So, you need to install :
-* [ROS Melodic](http://wiki.ros.org/melodic/Installation) and [Gazebo](http://gazebosim.org/tutorials?tut=install_ubuntu) in your local machine (it can be a virtual machine)
-* [Singularity](https://sylabs.io/guides/3.5/admin-guide/installation.html) or [Docker](https://docs.docker.com/engine/install/ubuntu/) container
+Tu run Turtlebot2-with-head simulation, you need to install the robotic middleware ROS Melodic (related to Ubuntu 18.04) and the Simulator Gazebo. You can install them on your local machine or on a virtual machine):
+* [ROS Melodic](http://wiki.ros.org/melodic/Installation)
+* [Gazebo](http://gazebosim.org/tutorials?tut=install_ubuntu)
+
 
 ### Installation
-
+1. Clone the GitHub repository
+  ```sh
+  git clone https://github.com/alexoterno/turtlebot2_with_head
+  ```
+  2. Do a make and source your workspace
+  ```sh
+  cd /path/to/your/turtlebot2_with_head
+  catkin_make
+  source /opt/ros/melodic/setup.bash
+  source devel/setup.bash
+  ```
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+Here, you can find an example of how to run the simulation.
+Open a terminal and type :
+```sh
+source /opt/ros/melodic/setup.bash
+source /path/to/your/turtlebot2_with_head/devel/setup.bash
+export ROS_MASTER_URI=http://localhost:11350
+sh /path/to/your/turtlebot2_with_head/src/inria_src/src/custom_launchers/launch/gazeboSim0.sh
+```
+If you want to activate the GUI interface of Gazebo, add "-g"
+```sh  
+sh /path/to/your/turtlebot2_with_head/src/inria_src/src/custom_launchers/launch/gazeboSim0.sh -g
+```
+See the [*gazeboSim0.sh*](https://github.com/alexoterno/turtlebot2_with_head/blob/master/src/inria_src/src/custom_launchers/launch/gazeboSim0.sh) file, to know all the arguements that can be passed
+**Now, your turtlebot2_with_head simulation is running** on ROS Melodic.
+Congratulations !
 
 <!-- ROADMAP -->
 ## Roadmap
