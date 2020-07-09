@@ -100,8 +100,8 @@ If you want to activate the GUI interface of Gazebo, add "-g"
 ```sh  
 sh /path/to/your/turtlebot2_with_head/src/inria_src/src/custom_launchers/launch/gazeboSim0.sh -g
 ```
-See the [*gazeboSim0.sh*](https://github.com/alexoterno/turtlebot2_with_head/blob/master/src/inria_src/src/custom_launchers/launch/gazeboSim0.sh) file, to know all the arguements that can be passed
-**Now, your turtlebot2_with_head simulation is running** on ROS Melodic.
+See the [*gazeboSim0.sh*](https://github.com/alexoterno/turtlebot2_with_head/blob/master/src/inria_src/src/custom_launchers/launch/gazeboSim0.sh) file, to know all the arguements that can be passed. <br/>
+**Now, your turtlebot2_with_head simulation is running** on ROS Melodic.<br/>
 Congratulations !
 
 <!-- ROADMAP -->
