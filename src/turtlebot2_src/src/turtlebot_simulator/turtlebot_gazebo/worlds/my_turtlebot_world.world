@@ -474,15 +474,15 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Marker0'>
-        <pose>-3 3 0.626631 0 0 -0.639737</pose> <!--0.626631 0.086631 -->
-        <link name='link'>
-          <pose>-3 3 0.626631 0 0 -0.639737</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
+      <!-- <model name='Marker0'> -->
+        <!-- <pose>-3 3 0.626631 0 0 -0.639737</pose> <!--0.626631 0.086631 --> -->
+        <!-- <link name='link'> -->
+          <!-- <pose>-3 3 0.626631 0 0 -0.639737</pose> -->
+          <!-- <velocity>0 0 0 0 -0 0</velocity> -->
+          <!-- <acceleration>0 0 0 0 -0 0</acceleration> -->
+          <!-- <wrench>0 0 0 0 -0 0</wrench> -->
+        <!-- </link> -->
+      <!-- </model> -->
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>s
@@ -656,7 +656,7 @@
       <uri>model://person_standing</uri>
       <pose>2 2 0 0 0 0</pose>
     </include>
-    <model name='Marker0'>
+    <!-- <model name='Marker0'>
       <static>1</static>
       <link name='link'>
         <visual name='visual'>
@@ -676,6 +676,6 @@
         <gravity>1</gravity>
       </link>
       <pose>1 0 0 0 -0 0</pose>
-    </model>
+    </model> -->
   </world>
 </sdf>
