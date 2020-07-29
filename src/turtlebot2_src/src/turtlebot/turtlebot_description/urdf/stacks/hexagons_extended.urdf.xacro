@@ -308,7 +308,7 @@
     </link>
 
     <!-- <xacro:robotis_op3_head parent="plate_top_3rd_link" /> -->
-    <xacro:property name="head_link_name"          value="head_2_link"/>
+    <!-- <xacro:property name="head_link_name"          value="head_2_link"/> -->
     <xacro:head name="head" parent="${parent}"/>
   </xacro:macro>
 </robot>

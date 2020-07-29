@@ -3,6 +3,7 @@
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(find ros_controllers_redefined)/config/controllers.yaml" command="load"/>
   <rosparam command="load" file="$(find ari_description)/config/joint_trajectory_controllers.yaml" />
+  <rosparam command="load" file="$(find ari_description)/config/joint_state_controller.yaml" />
   <rosparam command="load" file="$(find ari_description)/config/pids.yaml" />
   <!-- <rosparam command="load" file="$(find ari_description)/config/joint_state_controller.yaml" /> -->
   <!-- <rosparam command="load" file="$(find ros_controllers_redefined)/config/pids.yaml"/> -->
@@ -27,7 +28,8 @@
                           head_tilt_position
                           "> -->
   <arg name="controller_list"
-       value="head_controller
+       value="joint_state_controller
+              head_controller
               "/>
 
   <!-- Controllers that come up started -->
